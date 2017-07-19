@@ -13,22 +13,22 @@ public class GridSpawner : MonoBehaviour {
   public void SpawnTiles(int width, int length)
   {
     Tiles = new Tile[width, length];
-    for (int i = 0; i < width; i++)
+    for (int i = 1; i < width+1; i++)
     {
-      for (int j = 0; j < length; j++)
+      for (int j = 1; j < length+1; j++)
       {
         Vector3 TilePos;
         if (i % 2 != 0)
         {
-          TilePos = new Vector3(widthTile + (i * widthTile), heightTile + (j * heightTile), 0);
+          TilePos = new Vector3(-(canvas.GetComponent<RectTransform>().rect.width/2) + ((widthTile/4)*i), (canvas.GetComponent<RectTransform>().rect.height / 2) - ((widthTile/4)*j), 0);
         }
         else
         {
-          TilePos = new Vector3(widthTile + (i * widthTile), heightTile + (j * heightTile), 0);
+          TilePos = new Vector3(-(canvas.GetComponent<RectTransform>().rect.width / 2) + ((widthTile / 4) * i), (canvas.GetComponent<RectTransform>().rect.height / 2) - ((widthTile / 4)*j), 0);
         }
         GameObject iTile = Instantiate(prefabTile, TilePos, prefabTile.transform.rotation);
         iTile.transform.SetParent(canvas.transform, false);
-        Tiles[i, j] = new Tile(iTile, 6);
+        Tiles[i-1, j-1] = new Tile(iTile, 6);
       }
     }
   }
@@ -36,8 +36,10 @@ public class GridSpawner : MonoBehaviour {
 	void Start () {
     canvas = GameObject.Find("Canvas");
     RectTransform rt = (RectTransform)prefabTile.transform;
-    widthTile = prefabTile.GetComponent<Image>().sprite.bounds.size.x;
-    heightTile = prefabTile.GetComponent<Image>().sprite.bounds.size.y;
+    widthTile = Mathf.Abs(prefabTile.GetComponent<RectTransform>().rect.width);
+    Debug.Log(widthTile);
+    heightTile = Mathf.Abs(prefabTile.GetComponent<RectTransform>().rect.height);
+    Debug.Log(heightTile);
     SpawnTiles(4, 5);
 
   }
