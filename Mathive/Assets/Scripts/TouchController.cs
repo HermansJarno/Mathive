@@ -13,13 +13,14 @@ public class TouchController : MonoBehaviour {
   TouchPhase touchPhase = TouchPhase.Moved;
   public GraphicRaycaster myGRaycaster;
 
-
+  List<GameObject> selectedHives = new List<GameObject>();
+  List<GameObject> currentHives = new List<GameObject>();
 
   void Update()
   {
     //We check if we have more than one touch happening.
     //We also check if the first touches phase is Ended (that the finger was lifted)
-    if (Input.touchCount > 0 && Input.GetTouch(0).phase == touchPhase)
+    if (Input.touchCount > 0 && (Input.GetTouch(0).phase == touchPhase || Input.GetTouch(0).phase == TouchPhase.Began))
     {
       List<RaycastResult> rayResults = new List<RaycastResult>();
       PointerEventData ped = new PointerEventData(null);
@@ -27,9 +28,19 @@ public class TouchController : MonoBehaviour {
       myGRaycaster.Raycast(ped, rayResults);
       foreach (RaycastResult result in rayResults)
       {
-        if (result.gameObject.tag == "Hive")
+        GameObject resultObject = result.gameObject;
+        if (resultObject.tag == "Hive")
         {
-          result.gameObject.GetComponent<Image>().sprite = selectedSprite;
+          if (!selectedHives.Contains(resultObject))
+          {
+            resultObject.GetComponent<Image>().sprite = selectedSprite;
+            selectedHives.Add(resultObject);
+          }
+          else
+          {
+            resultObject.GetComponent<Image>().sprite = normalSprite;
+            selectedHives.Remove(resultObject);
+          }
         }
       }
     }
