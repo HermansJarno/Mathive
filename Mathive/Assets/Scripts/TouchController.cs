@@ -15,6 +15,8 @@ public class TouchController : MonoBehaviour {
 
   List<GameObject> selectedHives = new List<GameObject>();
   List<GameObject> currentHives = new List<GameObject>();
+  Stack<GameObject> stackHives = new Stack<GameObject>();
+  string currentHive = "";
 
   void Update()
   {
@@ -28,19 +30,41 @@ public class TouchController : MonoBehaviour {
       myGRaycaster.Raycast(ped, rayResults);
       foreach (RaycastResult result in rayResults)
       {
-        GameObject resultObject = result.gameObject;
-        if (resultObject.tag == "Hive")
+        GameObject resultHive = result.gameObject;
+        if (resultHive.tag == "Hive")
         {
-          if (!selectedHives.Contains(resultObject))
+          if (stackHives.Count > 0)
           {
-            resultObject.GetComponent<Image>().sprite = selectedSprite;
-            selectedHives.Add(resultObject);
+            if (currentHive != resultHive.name)
+            {
+              GameObject tempHive = null;
+              if (stackHives.Count > 1)
+              {
+                 tempHive = stackHives.Pop();
+              }
+
+              if (stackHives.Peek() == resultHive)
+              {
+                tempHive.GetComponent<Image>().sprite = normalSprite;
+              }
+              else
+              {
+                if (tempHive != null)
+                {
+                  stackHives.Push(tempHive);
+                }
+
+                stackHives.Push(resultHive);
+                resultHive.GetComponent<Image>().sprite = selectedSprite;
+              }
+            }
           }
           else
           {
-            resultObject.GetComponent<Image>().sprite = normalSprite;
-            selectedHives.Remove(resultObject);
+            stackHives.Push(resultHive);
+            resultHive.GetComponent<Image>().sprite = selectedSprite;
           }
+          currentHive = resultHive.name;
         }
       }
     }
@@ -49,7 +73,16 @@ public class TouchController : MonoBehaviour {
       foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))
       {
         Hive.GetComponent<Image>().sprite = normalSprite;
+        if (selectedHives.Contains(Hive))
+        {
+          selectedHives.Remove(Hive);
+        }
+        if (currentHives.Contains(Hive))
+        {
+          currentHives.Remove(Hive);
+        }
       }
+      stackHives.Clear();
     }
   }
 }
