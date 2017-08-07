@@ -13,10 +13,18 @@ public class TouchController : MonoBehaviour {
   TouchPhase touchPhase = TouchPhase.Moved;
   public GraphicRaycaster myGRaycaster;
 
-  List<GameObject> selectedHives = new List<GameObject>();
-  List<GameObject> currentHives = new List<GameObject>();
-  Stack<GameObject> stackHives = new Stack<GameObject>();
+  Stack<GameObject> selectedHives = new Stack<GameObject>();
+  List<GameObject> lineHives = new List<GameObject>();
   string currentHive = "";
+  GameObject lastHive;
+  Grid grid;
+  LineRenderController LRController;
+
+  private void Start()
+  {
+    grid = GameObject.Find("Scripts").GetComponent<Grid>();
+    LRController = GameObject.Find("LineRenderer").GetComponent<LineRenderController>();
+  }
 
   void Update()
   {
@@ -33,56 +41,71 @@ public class TouchController : MonoBehaviour {
         GameObject resultHive = result.gameObject;
         if (resultHive.tag == "Hive")
         {
-          if (stackHives.Count > 0)
+          // Is there a hive selected?
+          if (selectedHives.Count > 0)
           {
+            //Is it the same as last frame?
             if (currentHive != resultHive.name)
             {
               GameObject tempHive = null;
-              if (stackHives.Count > 1)
+              if (selectedHives.Count > 1)
               {
-                 tempHive = stackHives.Pop();
+                 tempHive = selectedHives.Pop();
               }
 
-              if (stackHives.Peek() == resultHive)
+              // Are we deselecting?
+              if (selectedHives.Peek() == resultHive)
               {
-                tempHive.GetComponent<Image>().sprite = normalSprite;
+                lineHives.Remove(tempHive);
+                if(tempHive != null) tempHive.GetComponent<Image>().sprite = normalSprite;
+
               }
               else
               {
+                // If not deselecting, repush
                 if (tempHive != null)
                 {
-                  stackHives.Push(tempHive);
+                  selectedHives.Push(tempHive);
                 }
-
-                stackHives.Push(resultHive);
-                resultHive.GetComponent<Image>().sprite = selectedSprite;
+                // If selected hive is already in the Stack, do nothing
+                if (!selectedHives.Contains(resultHive))
+                {
+                  if (grid.IsHiveNear(lastHive, resultHive))
+                  {
+                    selectedHives.Push(resultHive);
+                    lastHive = resultHive;
+                    resultHive.GetComponent<Image>().sprite = selectedSprite;
+                    lineHives.Add(resultHive);
+                  }
+                }
               }
+              LRController.UpdatePoints(lineHives);
             }
           }
           else
           {
-            stackHives.Push(resultHive);
+            // Push the first hive
+            selectedHives.Push(resultHive);
+            lineHives.Add(resultHive);
+            lastHive = resultHive;
             resultHive.GetComponent<Image>().sprite = selectedSprite;
           }
           currentHive = resultHive.name;
+          
         }
       }
     }
+    // Deselect all hives on touch end.
+    // Check if it's the right result.
     if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
     {
       foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))
       {
         Hive.GetComponent<Image>().sprite = normalSprite;
-        if (selectedHives.Contains(Hive))
-        {
-          selectedHives.Remove(Hive);
-        }
-        if (currentHives.Contains(Hive))
-        {
-          currentHives.Remove(Hive);
-        }
       }
-      stackHives.Clear();
+      selectedHives.Clear();
+      lineHives.Clear();
+      LRController.UpdatePoints(lineHives);
     }
   }
 }

@@ -34,6 +34,36 @@ public class Grid : MonoBehaviour {
       }
     }
   }
+
+  public bool IsHiveNear(GameObject lastHive, GameObject nextHive)
+  {
+    bool hiveIsNear = false;
+    int indexIlast = 0, indexINext = 0;
+    int indexJlast = 0, indexJNext = 0;
+    for (int i = 0; i < m_Grid.GetLength(0); i++)
+    {
+      for (int j = 0; j < m_Grid.GetLength(1); j++)
+      {
+        if (m_Grid[i, j].tileObj == lastHive)
+        {
+          indexIlast = i;
+          indexJlast = j;
+        }
+        if (m_Grid[i, j].tileObj == nextHive)
+        {
+          indexINext = i;
+          indexJNext = j;
+        }
+      }
+    }
+
+    if (((indexJlast + 1 == indexJNext) || (indexJlast - 1 == indexJNext) || (indexJlast == indexJNext)))
+    {
+      if(((indexIlast + 1 == indexINext) || (indexIlast - 1 == indexINext) || (indexIlast == indexINext)))
+      hiveIsNear = true;
+    }
+    return hiveIsNear;
+  }
 }
 
 public class Tile
