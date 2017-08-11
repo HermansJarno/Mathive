@@ -99,6 +99,10 @@ public class TouchController : MonoBehaviour {
     // Check if it's the right result.
     if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
     {
+      if (grid.isSequenceMatch(lineHives))
+      {
+
+      }
       foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))
       {
         Hive.GetComponent<Image>().sprite = normalSprite;
