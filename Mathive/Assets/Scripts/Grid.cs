@@ -1,108 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Grid : MonoBehaviour {
 
   string[] symbols = {"+","/", "*", "-" };
+  float distanceBetweenTiles;
   Tile[,] m_Grid;
-  Text goalNumber;
+  Text Score;
   public GameObject m_GridContainer;
 
 	// Use this for initialization
 	void Start () {
     InitializeGrid();
-    goalNumber = GameObject.Find("GoalNumber").GetComponent<Text>();
-	}
+    distanceBetweenTiles = Vector3.Distance(m_Grid[0,0].tileObj.transform.position, m_Grid[1, 0].tileObj.transform.position);
+    Score = GameObject.Find("Score").GetComponent<Text>();
+  }
 	
 	// Update is called once per frame
 	void Update () {
 		
 	}
 
-  void SetGoalNumber() {
-    Stack<Tile> hives = new Stack<Tile>();
-    string numberSequence = findNumber(3, hives, 0,0,"");
-    int theGoalNumber = 0;
-    foreach (char index in numberSequence)
-    {
-      
-    }
-    goalNumber.text = theGoalNumber.ToString();
-  }
-
-  string findNumber(int stepsLeft, Stack<Tile> currentHives, int lastIndexI, int lastIndexJ, string goalNumber)
-  {
-    if (stepsLeft == 0)
-    {
-      return goalNumber;
-    }
-    else
-    {
-      if (currentHives.Count == 0)
-      {
-        lastIndexI = Random.Range(0, m_Grid.GetLength(0) + 1);
-        lastIndexJ = Random.Range(0, m_Grid.GetLength(1) + 1);
-        currentHives.Push(m_Grid[lastIndexI, lastIndexJ]);
-        goalNumber += currentHives.Peek().number;
-      }
-      else
-      {
-        List<int> iNext = new List<int>();
-        List<int> jNext = new List<int>();
-        for (int i = -1; i <= 1; i++)
-        {
-          iNext.Add(i);
-          jNext.Add(i);
-        }
-        if (lastIndexI == m_Grid.GetLength(0))
-        {
-          iNext.Remove(1);
-        }
-        if (lastIndexJ == m_Grid.GetLength(1))
-        {
-          jNext.Remove(1);
-        }
-        if (lastIndexI == 0)
-        {
-          iNext.Remove(-1);
-        }
-        if (lastIndexJ == 0)
-        {
-          jNext.Remove(-1);
-        }
-        int tempI;
-        int tempJ;
-
-        do
-        {
-          int randomIndexI = Random.Range(0, iNext.Count);
-          int randomIndexJ = Random.Range(0, jNext.Count);
-          tempI = lastIndexI + iNext[randomIndexI];
-          tempJ = lastIndexJ + jNext[randomIndexJ];
-        } while ((tempI == lastIndexI) && (tempJ == lastIndexJ));
-
-        if (!currentHives.Contains(m_Grid[tempI, tempJ]))
-        {
-          lastIndexI = tempI;
-          lastIndexJ = tempJ;
-          currentHives.Push(m_Grid[lastIndexI, lastIndexJ]);
-          goalNumber += currentHives.Peek().number.ToString();
-        }
-        else
-        {
-          return findNumber(stepsLeft, currentHives, lastIndexI, lastIndexJ, goalNumber);
-        }
-      }
-    }
-    return findNumber(stepsLeft--, currentHives, lastIndexI, lastIndexJ, goalNumber);
-  }
+  
 
   void InitializeGrid()
   {
-    int stepsSinceLastSymbol = 0;
-    bool hiveUsed = false;
     int width, height;
     width = m_GridContainer.transform.childCount;
     height = m_GridContainer.transform.GetChild(0).childCount;
@@ -111,41 +34,9 @@ public class Grid : MonoBehaviour {
     {
       for (int j = 0; j < height; j++)
       {
-        hiveUsed = false;
-        int oneOrTwo = Random.Range(1, 3);
-        if (stepsSinceLastSymbol == 0 && !hiveUsed)
-        {
-          int num = Random.Range(1, 10);
-          m_Grid[i, j] = new Tile(m_GridContainer.transform.GetChild(i).GetChild(j).gameObject, num.ToString());
-          m_GridContainer.transform.GetChild(i).GetChild(j).Find("Text").GetComponent<Text>().text = num.ToString();
-          stepsSinceLastSymbol++;
-          hiveUsed = true;
-        }
-        if (stepsSinceLastSymbol == 1 && !hiveUsed)
-        {
-          if (oneOrTwo == 1)
-          {
-            int num = Random.Range(1, 10);
-            m_Grid[i, j] = new Tile(m_GridContainer.transform.GetChild(i).GetChild(j).gameObject, num.ToString());
-            m_GridContainer.transform.GetChild(i).GetChild(j).Find("Text").GetComponent<Text>().text = num.ToString();
-            stepsSinceLastSymbol++;
-          }
-          else
-          {
-            int num = Random.Range(0, 4);
-            m_Grid[i, j] = new Tile(m_GridContainer.transform.GetChild(i).GetChild(j).gameObject, symbols[num].ToString());
-            m_GridContainer.transform.GetChild(i).GetChild(j).Find("Text").GetComponent<Text>().text = symbols[num].ToString();
-            stepsSinceLastSymbol = 0;
-          }
-          hiveUsed = true;
-        }
-        if (stepsSinceLastSymbol == 2 && !hiveUsed)
-        {
-          int num = Random.Range(0, 4);
-          m_Grid[i, j] = new Tile(m_GridContainer.transform.GetChild(i).GetChild(j).gameObject, symbols[num].ToString());
-          m_GridContainer.transform.GetChild(i).GetChild(j).Find("Text").GetComponent<Text>().text = symbols[num].ToString();
-          stepsSinceLastSymbol = 0;
-        }
+        int num = Random.Range(1, 3);
+        m_Grid[i, j] = new Tile(m_GridContainer.transform.GetChild(i).GetChild(j).gameObject, num.ToString());
+        m_GridContainer.transform.GetChild(i).GetChild(j).Find("Text").GetComponent<Text>().text = num.ToString();
       }
     }
   }
@@ -180,21 +71,33 @@ public class Grid : MonoBehaviour {
     return hiveIsNear;
   }
 
-  public bool isSequenceMatch(List<GameObject> hives)
+  public int CountHives(List<GameObject> hives)
   {
-    bool match = false;
-    return match;
+    int resultNumber = 0;
+    for (int i = 0; i < hives.Count; i++)
+    {
+      int num = Random.Range(1, 3);
+      resultNumber += int.Parse(hives[i].transform.GetChild(0).GetComponent<Text>().text);
+      if (i != hives.Count - 1)
+      {
+        hives[i].transform.GetChild(0).GetComponent<Text>().text = num.ToString();
+      } 
+    }
+    int tempScore = int.Parse(Score.text);
+    Score.text = (tempScore + resultNumber).ToString();
+      
+    return resultNumber;
   }
 }
 
 public class Tile
 {
   public GameObject tileObj;
-  public string number;
+  public string value;
   public Tile(GameObject tileObject, string value)
   {
     tileObj = tileObject;
     tileObj.transform.Find("Text").GetComponent<Text>().text = value;
-    number = value;
+    this.value = value;
   }
 }

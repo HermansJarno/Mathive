@@ -72,10 +72,13 @@ public class TouchController : MonoBehaviour {
                 {
                   if (grid.IsHiveNear(lastHive, resultHive))
                   {
-                    selectedHives.Push(resultHive);
-                    lastHive = resultHive;
-                    resultHive.GetComponent<Image>().sprite = selectedSprite;
-                    lineHives.Add(resultHive);
+                    if (lastHive.transform.GetChild(0).GetComponent<Text>().text == resultHive.transform.GetChild(0).GetComponent<Text>().text)
+                    {
+                      selectedHives.Push(resultHive);
+                      lastHive = resultHive;
+                      resultHive.GetComponent<Image>().sprite = selectedSprite;
+                      lineHives.Add(resultHive);
+                    }
                   }
                 }
               }
@@ -99,10 +102,12 @@ public class TouchController : MonoBehaviour {
     // Check if it's the right result.
     if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
     {
-      if (grid.isSequenceMatch(lineHives))
+      if (lineHives.Count > 1)
       {
-
+        int result = grid.CountHives(lineHives);
+        lineHives[lineHives.Count - 1].transform.GetChild(0).GetComponent<Text>().text = result.ToString();
       }
+
       foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))
       {
         Hive.GetComponent<Image>().sprite = normalSprite;
