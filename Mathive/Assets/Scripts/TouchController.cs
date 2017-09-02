@@ -15,6 +15,7 @@ public class TouchController : MonoBehaviour {
 
   Stack<GameObject> selectedHives = new Stack<GameObject>();
   List<GameObject> lineHives = new List<GameObject>();
+  List<Hive> listHives = new List<Hive>();
   string currentHive = "";
   GameObject lastHive;
   Grid grid;
@@ -39,6 +40,7 @@ public class TouchController : MonoBehaviour {
       foreach (RaycastResult result in rayResults)
       {
         GameObject resultHive = result.gameObject;
+        Hive resultH = result.gameObject.GetComponent<Hive>();
         if (resultHive.tag == "Hive")
         {
           // Is there a hive selected?
@@ -57,7 +59,8 @@ public class TouchController : MonoBehaviour {
               if (selectedHives.Peek() == resultHive)
               {
                 lineHives.Remove(tempHive);
-                if(tempHive != null) tempHive.GetComponent<Image>().sprite = normalSprite;
+                listHives.Remove(tempHive.GetComponent<Hive>());
+                if (tempHive != null) tempHive.GetComponent<Image>().sprite = normalSprite;
 
               }
               else
@@ -78,6 +81,7 @@ public class TouchController : MonoBehaviour {
                       lastHive = resultHive;
                       resultHive.GetComponent<Image>().sprite = selectedSprite;
                       lineHives.Add(resultHive);
+                      listHives.Add(resultH);
                     }
                   }
                 }
@@ -90,6 +94,7 @@ public class TouchController : MonoBehaviour {
             // Push the first hive
             selectedHives.Push(resultHive);
             lineHives.Add(resultHive);
+            listHives.Add(resultH);
             lastHive = resultHive;
             resultHive.GetComponent<Image>().sprite = selectedSprite;
           }
@@ -102,10 +107,10 @@ public class TouchController : MonoBehaviour {
     // Check if it's the right result.
     if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
     {
-      if (lineHives.Count > 1)
+      if (listHives.Count > 1)
       {
-        int result = grid.CountHives(lineHives);
-        lineHives[lineHives.Count - 1].transform.GetChild(0).GetComponent<Text>().text = result.ToString();
+        grid.CalculateScore(listHives);
+
       }
 
       foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))
@@ -114,6 +119,7 @@ public class TouchController : MonoBehaviour {
       }
       selectedHives.Clear();
       lineHives.Clear();
+      listHives.Clear();
       LRController.UpdatePoints(lineHives);
     }
   }
