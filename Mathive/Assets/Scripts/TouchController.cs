@@ -17,14 +17,16 @@ public class TouchController : MonoBehaviour {
   List<GameObject> lineHives = new List<GameObject>();
   List<Hive> listHives = new List<Hive>();
   string currentHive = "";
-  GameObject lastHive;
+  Hive lastHive;
   Grid grid;
   LineRenderController LRController;
+  GameManager GM;
 
   private void Start()
   {
     grid = GameObject.Find("Scripts").GetComponent<Grid>();
     LRController = GameObject.Find("LineRenderer").GetComponent<LineRenderController>();
+    GM = GameObject.Find("Scripts").GetComponent<GameManager>();
   }
 
   void Update()
@@ -39,15 +41,15 @@ public class TouchController : MonoBehaviour {
       myGRaycaster.Raycast(ped, rayResults);
       foreach (RaycastResult result in rayResults)
       {
-        GameObject resultHive = result.gameObject;
-        Hive resultH = result.gameObject.GetComponent<Hive>();
-        if (resultHive.tag == "Hive")
+        GameObject resultObj = result.gameObject;
+        Hive resultHive = result.gameObject.GetComponent<Hive>();
+        if (resultObj.tag == "Hive")
         {
           // Is there a hive selected?
           if (selectedHives.Count > 0)
           {
             //Is it the same as last frame?
-            if (currentHive != resultHive.name)
+            if (currentHive != resultObj.name)
             {
               GameObject tempHive = null;
               if (selectedHives.Count > 1)
@@ -56,10 +58,11 @@ public class TouchController : MonoBehaviour {
               }
 
               // Are we deselecting?
-              if (selectedHives.Peek() == resultHive)
+              if (selectedHives.Peek() == resultObj)
               {
                 lineHives.Remove(tempHive);
                 listHives.Remove(tempHive.GetComponent<Hive>());
+                lastHive = resultHive;
                 if (tempHive != null) tempHive.GetComponent<Image>().sprite = normalSprite;
 
               }
@@ -71,17 +74,17 @@ public class TouchController : MonoBehaviour {
                   selectedHives.Push(tempHive);
                 }
                 // If selected hive is already in the Stack, do nothing
-                if (!selectedHives.Contains(resultHive))
+                if (!selectedHives.Contains(resultObj))
                 {
                   if (grid.IsHiveNear(lastHive, resultHive))
                   {
-                    if (lastHive.transform.GetChild(0).GetComponent<Text>().text == resultHive.transform.GetChild(0).GetComponent<Text>().text)
+                    if (lastHive.Value == resultHive.Value)
                     {
-                      selectedHives.Push(resultHive);
+                      selectedHives.Push(resultObj);
                       lastHive = resultHive;
-                      resultHive.GetComponent<Image>().sprite = selectedSprite;
-                      lineHives.Add(resultHive);
-                      listHives.Add(resultH);
+                      resultObj.GetComponent<Image>().sprite = selectedSprite;
+                      lineHives.Add(resultObj);
+                      listHives.Add(resultHive);
                     }
                   }
                 }
@@ -92,13 +95,13 @@ public class TouchController : MonoBehaviour {
           else
           {
             // Push the first hive
-            selectedHives.Push(resultHive);
-            lineHives.Add(resultHive);
-            listHives.Add(resultH);
+            selectedHives.Push(resultObj);
+            lineHives.Add(resultObj);
+            listHives.Add(resultHive);
             lastHive = resultHive;
-            resultHive.GetComponent<Image>().sprite = selectedSprite;
+            resultObj.GetComponent<Image>().sprite = selectedSprite;
           }
-          currentHive = resultHive.name;
+          currentHive = resultObj.name;
           
         }
       }
@@ -110,7 +113,7 @@ public class TouchController : MonoBehaviour {
       if (listHives.Count > 1)
       {
         grid.CalculateScore(listHives);
-
+        GM.MovesLeft--;
       }
 
       foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))

@@ -12,6 +12,7 @@ public class Grid : MonoBehaviour {
   public GameObject m_GridContainer;
   private GameObject hivePrefab;
   int gridWith, gridHeight;
+  float distanceBetweenHives = Mathf.Infinity;
 
   // Use this for initialization
   void Start () {
@@ -42,36 +43,32 @@ public class Grid : MonoBehaviour {
         m_Grid[i, j] = m_GridContainer.transform.GetChild(i).GetChild(j).GetComponent<Hive>();
         m_Grid[i, j].SetHive(num.ToString(),i,j);
         m_HivePositions[i, j] = m_Grid[i, j].transform.position;
+        if (j - 1 > 0)
+        {
+          float dist = Vector3.Distance(m_Grid[i, j].transform.position, m_Grid[i, j - 1].transform.position);
+          if (distanceBetweenHives > dist)
+          {
+            distanceBetweenHives = Mathf.Ceil(dist);
+          }
+        }
+        
       }
     }
   }
 
-  public bool IsHiveNear(GameObject lastHive, GameObject nextHive)
+  public bool IsHiveNear(Hive lastHive, Hive nextHive)
   {
     bool hiveIsNear = false;
-    int indexIlast = 0, indexINext = 0;
-    int indexJlast = 0, indexJNext = 0;
-    for (int i = 0; i < m_Grid.GetLength(0); i++)
+
+    if (((lastHive.X + 1 == nextHive.X) || (lastHive.X - 1 == nextHive.X) || (lastHive.X == nextHive.X)))
     {
-      for (int j = 0; j < m_Grid.GetLength(1); j++)
-      {
-        if (m_Grid[i, j].gameObject == lastHive)
+      if (((lastHive.Y + 1 == nextHive.Y) || (lastHive.Y - 1 == nextHive.Y) || (lastHive.Y == nextHive.Y)))
+      { 
+        if (Mathf.Round(Vector3.Distance(lastHive.transform.position, nextHive.transform.position)) == distanceBetweenHives)
         {
-          indexIlast = i;
-          indexJlast = j;
-        }
-        if (m_Grid[i, j].gameObject == nextHive)
-        {
-          indexINext = i;
-          indexJNext = j;
+          hiveIsNear = true;
         }
       }
-    }
-
-    if (((indexJlast + 1 == indexJNext) || (indexJlast - 1 == indexJNext) || (indexJlast == indexJNext)))
-    {
-      if(((indexIlast + 1 == indexINext) || (indexIlast - 1 == indexINext) || (indexIlast == indexINext)))
-      hiveIsNear = true;
     }
     return hiveIsNear;
   }
