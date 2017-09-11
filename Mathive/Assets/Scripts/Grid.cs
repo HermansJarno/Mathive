@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class Grid : MonoBehaviour {
 
-  string[] symbols = {"+","/", "*", "-" };
   Vector3[,] m_HivePositions;
   Hive[,] m_Grid;
   Text Score;
@@ -56,6 +55,11 @@ public class Grid : MonoBehaviour {
     }
   }
 
+  void SetIndexToZero(int x, int y)
+  {
+    m_Grid[x, y].SetHive("0", x, y);
+  }
+
   public bool IsHiveNear(Hive lastHive, Hive nextHive)
   {
     bool hiveIsNear = false;
@@ -85,37 +89,53 @@ public class Grid : MonoBehaviour {
     resultNumber = Mathf.RoundToInt(Mathf.Pow(currentNumber, macht));
     int tempScore = int.Parse(Score.text);
     Score.text = (tempScore + resultNumber).ToString();
-    DestroyHives(hives);
-    UpdateGrid();
   }
 
-  void DestroyHives(List<Hive> hives)
+  void DestroyHives(List<Hive> hives, bool removeHive)
   {
     foreach (Hive hive in hives)
     {
       if (hive != hives[hives.Count - 1])
       {
-        StartCoroutine(hive.transform.Scale(Vector3.zero, 0.2f, hive));
-        RemoveFromGrid(hive);
+        if (removeHive)
+        {
+          StartCoroutine(hive.transform.Scale(Vector3.zero, 0.2f));
+          SetIndexToZero(hive.X, hive.Y);
+          removeHive = false;
+        }
+        else
+        {
+          StartCoroutine(hive.transform.Scale(Vector3.zero, 0.2f, hive));
+          RemoveFromGrid(hive);
+        }
       }
     }
   }
 
-  void UpdateGrid()
+  public void UpdateGrid(List<Hive> hives, bool removeHive)
   {
-      for (int i = 0; i < gridWith; i++)
+    DestroyHives(hives, removeHive);
+    for (int i = 0; i < gridWith; i++)
+    {
+      for (int j = 0; j < gridHeight; j++)
       {
-        for (int j = 0; j < gridHeight; j++)
+        if (m_Grid[i, j] == null)
         {
-          if (m_Grid[i, j] == null)
+          m_Grid[i, j] = FindNextHive(i, j);
+          m_Grid[i, j].gameObject.AddComponent<MoveHive>();
+          if (j == (gridHeight - 1))
           {
-              m_Grid[i, j] = FindNextHive(i, j);
-              m_Grid[i, j].gameObject.AddComponent<MoveHive>();
-              m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.position, m_HivePositions[i, j], 4f);
-              m_Grid[i, j].OnPositionChanged(i, j);
+            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.position.x, m_Grid[i, j].transform.position.y + distanceBetweenHives, m_Grid[i, j].transform.position.z), m_HivePositions[i, j], 4f, 0f);
           }
+          else
+          {
+            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.position, m_HivePositions[i, j], 4f);
+          }
+
+          m_Grid[i, j].OnPositionChanged(i, j);
         }
       }
+    }
   }
 
   void RemoveFromGrid(Hive hive)
@@ -134,6 +154,7 @@ public class Grid : MonoBehaviour {
 
   Hive FindNextHive(int i, int j)
   {
+    // MAX INDEX
     if (j == gridHeight - 1)
     {
       return InstantiateHive(i, j);
@@ -141,7 +162,7 @@ public class Grid : MonoBehaviour {
     else
     {
       j++;
-      if (m_Grid[i, j] != null)
+      if (m_Grid[i, j] != null && m_Grid[i, j].Value != "0")
       {
         Hive tempHive = m_Grid[i, j];
         m_Grid[i, j] = null;

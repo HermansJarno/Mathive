@@ -39,7 +39,15 @@ public class Hive : MonoBehaviour {
   public void OnValueChanged(string newValue)
   {
     _value = newValue;
-    gameObject.transform.Find("Text").GetComponent<Text>().text = _value;
+    if ((int.Parse(_value) == 0))
+    {
+      gameObject.GetComponent<Image>().enabled = false;
+      gameObject.transform.Find("Text").GetComponent<Text>().text = "";
+    }
+    else
+    {
+      gameObject.transform.Find("Text").GetComponent<Text>().text = _value;
+    }
   }
 
   public void SetHive(string setValue, int xValue, int yValue)

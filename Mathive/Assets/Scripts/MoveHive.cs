@@ -11,15 +11,18 @@ public class MoveHive : MonoBehaviour {
   /// How far the object should move when 'space' is pressed
   /// </summary>
   public float m_speed = 10;
+  public float m_alpha = 0;
 
   //Whether we are currently interpolating or not
   private bool _isLerping;
+  private bool _alphaLerping = false;
 
   //The start and finish positions for the interpolation
   private Vector3 _startPosition;
   private Vector3 _endPosition;
   private Vector3 _totalScale;
   private Vector3 _midScale;
+  private CanvasGroup transparancy;
 
   //The Time.time value when we started the interpolation
   private float _timeStartedLerping;
@@ -37,6 +40,23 @@ public class MoveHive : MonoBehaviour {
     _midScale = transform.localScale / 2;
   }
 
+  public void BeginLerp(Vector3 begin, Vector3 end, float speed, float alpha)
+  {
+    _isLerping = true;
+    _timeStartedLerping = Time.time;
+
+    //We set the start position to the current position, and the finish to 10 spaces in the 'forward' direction
+    _startPosition = begin;
+    _endPosition = end;
+    m_speed = speed;
+    _totalScale = transform.localScale;
+    _midScale = transform.localScale / 2;
+    m_alpha = alpha;
+    transparancy = gameObject.AddComponent<CanvasGroup>();
+    transparancy.alpha = m_alpha;
+    _alphaLerping = true;
+  }
+
   void FixedUpdate()
   {
     if (_isLerping)
@@ -49,6 +69,10 @@ public class MoveHive : MonoBehaviour {
       //throughout a single lerp-processs (ie. they won't change until we hit the space-bar again
       //to start another lerp)
       transform.position = Vector3.Lerp(_startPosition, _endPosition, percentageComplete);
+      if (_alphaLerping)
+      {
+        transparancy.alpha = percentageComplete;
+      }
 
       if (percentageComplete <= 0.5)
       {
@@ -62,6 +86,11 @@ public class MoveHive : MonoBehaviour {
       //When we've completed the lerp, we set _isLerping to false
       if (percentageComplete >= 1.0f)
       {
+        if (_alphaLerping)
+        {
+          transparancy.alpha = 1f;
+          Destroy(transparancy);
+        }
         _isLerping = false;
         Destroy(this);
       }

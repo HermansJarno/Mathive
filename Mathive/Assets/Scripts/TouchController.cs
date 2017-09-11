@@ -113,7 +113,16 @@ public class TouchController : MonoBehaviour {
       if (listHives.Count > 1)
       {
         grid.CalculateScore(listHives);
+
         GM.MovesLeft--;
+        if ((GM.MovesLeft % 5) == 0 && (GM.MovesLeft != 0))
+        {
+          grid.UpdateGrid(listHives, true);
+        }
+        else
+        {
+          grid.UpdateGrid(listHives, false);
+        }
       }
 
       foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))
