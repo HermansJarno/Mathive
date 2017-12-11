@@ -12,21 +12,16 @@ public class Grid : MonoBehaviour {
   private GameObject hivePrefab;
   int gridWith, gridHeight;
   float distanceBetweenHives = Mathf.Infinity;
+  GameManager GM;
+  int _numberOfFirstTarget = 50;
 
   // Use this for initialization
   void Start () {
-    InitializeGrid();
     Score = GameObject.Find("Score").GetComponent<Text>();
     hivePrefab = Resources.Load("Hive") as GameObject;
-
+    GM = GameObject.Find("Scripts").GetComponent<GameManager>();
+    InitializeGrid();
   }
-	
-	// Update is called once per frame
-	void Update () {
-
-  }
-
-  
 
   void InitializeGrid()
   { 
@@ -49,10 +44,10 @@ public class Grid : MonoBehaviour {
           {
             distanceBetweenHives = Mathf.Ceil(dist);
           }
-        }
-        
+        }   
       }
     }
+    GM.SetTargets(1, _numberOfFirstTarget);
   }
 
   void SetIndexToZero(int x, int y)
@@ -89,6 +84,20 @@ public class Grid : MonoBehaviour {
     resultNumber = Mathf.RoundToInt(Mathf.Pow(currentNumber, macht));
     int tempScore = int.Parse(Score.text);
     Score.text = (tempScore + resultNumber).ToString();
+  }
+
+  public void UpdateGM(int quantity, int currentNumber)
+  {
+    if (currentNumber == GM.TargetNumber)
+    {
+      GM.CurrentQuantity += quantity;
+    }
+
+    if (GM.TargetIsCompleted())
+    {
+      GM.GetNextTarget(gridWith * gridHeight);
+      ActivateHives();
+    }
   }
 
   void DestroyHives(List<Hive> hives, bool removeHive)
@@ -180,8 +189,32 @@ public class Grid : MonoBehaviour {
     GameObject prefabHive = Instantiate(hivePrefab, m_HivePositions[x, y], hivePrefab.transform.rotation) as GameObject;
     prefabHive.transform.SetParent(m_GridContainer.transform.GetChild(x),false);
     prefabHive.GetComponent<Hive>().OnPositionChanged(x, y);
-    prefabHive.GetComponent<Hive>().OnValueChanged(Random.Range(1, 3).ToString());
+    int targetNumber = GM.TargetNumber;
+   
+    prefabHive.GetComponent<Hive>().OnValueChanged(CalculateValue(targetNumber).ToString());
     return prefabHive.GetComponent<Hive>();
+  }
+
+  int CalculateValue(int target)
+  {
+    int[] possibleNumbers;
+    if (target > 2)
+    {
+      possibleNumbers = new int[(int)Mathf.Sqrt(target/2)];
+      int targetNumber = target/2;
+
+      for (int i = 0; i < possibleNumbers.Length; i++)
+      {
+        possibleNumbers[i] = targetNumber;
+        targetNumber /= 2;
+      }
+    }
+    else
+    {
+      possibleNumbers = new int[2] { 1, 2 };
+    }
+
+    return possibleNumbers[Random.Range(0, possibleNumbers.Length)];
   }
 
   void ResetHives(List<Hive> hives)
@@ -206,7 +239,7 @@ public class Grid : MonoBehaviour {
     {
       for (int j = 0; j < gridHeight; j++)
       {
-        if (!m_Grid[i,j].gameObject.activeSelf)
+        if (m_Grid[i,j].Value == "0")
         {
           tempHives.Add(m_Grid[i, j].gameObject);
         }
@@ -215,15 +248,10 @@ public class Grid : MonoBehaviour {
 
     if (tempHives.Count > 0)
     {
-      int num = Random.Range(1, 3);
       int rndIndex = Random.Range(0, tempHives.Count);
+      Hive hive = tempHives[rndIndex].GetComponent<Hive>();
+      hive.OnValueChanged((Random.Range(1, 3).ToString()));
       StartCoroutine(tempHives[rndIndex].transform.Scale(hivePrefab.transform.localScale, 0.2f,true));
-      tempHives.Remove(tempHives[rndIndex]);
-      if (num == 2 && tempHives.Count > 0)
-      {
-        rndIndex = Random.Range(0, tempHives.Count);
-        StartCoroutine(tempHives[rndIndex].transform.Scale(hivePrefab.transform.localScale, 0.2f,true));
-      }
     }
   }
 }

@@ -10,16 +10,50 @@ public class GameManager : MonoBehaviour {
   [SerializeField] private float _maxTime;
   [SerializeField] private int _score = 0;
   [SerializeField] private int _goalScore = 0;
-  [SerializeField] private int _movesLeft = 30;
+  [SerializeField] private int _movesLeft = 6;
 
-  private Text _movesText;
+  [SerializeField] private int _targetNumber = 1;
+  [SerializeField] private int _targetQuantityOfNumber = 20;
+  [SerializeField] private int _currentQuantityOfNumber = 0;
 
-  void SetLevel(int level, int maxTime, int goalScore)
+  private Text _targetText;
+  private Text _targetQuantityText;
+  private Text _movesLeftText;
+
+
+  //public void SetLevel(int level, int maxTime, int goalScore)
+  //{
+  //  _level = level;
+  //  _maxTime = maxTime;
+  //  _timeLeft = maxTime;
+  //  _goalScore = goalScore;
+  //}
+
+  public void SetTargets(int targetNumber, int quantityNumber)
   {
-    _level = level;
-    _maxTime = maxTime;
-    _timeLeft = maxTime;
-    _goalScore = goalScore;
+    TargetNumber = targetNumber;
+    TargetQuantity = quantityNumber;
+    CurrentQuantity = 0;
+  }
+
+  public void GetNextTarget(int numberOfHives)
+  {
+    TargetNumber += _targetNumber;
+    if(numberOfHives * 2 > _targetNumber) _targetQuantityOfNumber = Mathf.CeilToInt((numberOfHives * 2) / (_targetNumber/1.5f));
+    if (_targetQuantityOfNumber == 1)
+    {
+      _targetQuantityOfNumber = 2;
+    }
+    CurrentQuantity = 0;
+  }
+
+  public bool TargetIsCompleted()
+  {
+    if (_currentQuantityOfNumber >= _targetQuantityOfNumber)
+    {
+      return true;
+    }
+    return false;
   }
 
   bool IsLevelCompleted()
@@ -52,6 +86,40 @@ public class GameManager : MonoBehaviour {
     set { _level = value; }
   }
 
+  public int TargetNumber
+  {
+    get { return _targetNumber; }
+    set
+    {
+      if (_targetText == null)
+      {
+        _targetText = GameObject.Find("Target").GetComponent<Text>();
+      }
+      _targetText.text = value.ToString();
+      _targetNumber = value;
+    }
+  }
+
+  public int TargetQuantity
+  {
+    get { return _targetQuantityOfNumber; }
+    set { _targetQuantityOfNumber = value; }
+  }
+
+  public int CurrentQuantity
+  {
+    get { return _currentQuantityOfNumber; }
+    set
+    {
+      if (_targetQuantityText == null)
+      {
+        _targetQuantityText = GameObject.Find("TargetQuantity").GetComponent<Text>();
+      }
+      _targetQuantityText.text = value.ToString() + "/" + _targetQuantityOfNumber;
+      _currentQuantityOfNumber = value;
+    }
+  }
+
   public int Score
   {
     get { return _score; }
@@ -69,15 +137,19 @@ public class GameManager : MonoBehaviour {
     get { return _movesLeft; }
     set
     {
-      if (_movesLeft > 0)
+      if (_movesLeftText == null)
+      {
+        _movesLeftText = GameObject.Find("MovesLeft").GetComponent<Text>();
+      }
+      if (_movesLeft > 1)
       {
         _movesLeft = value;
-        if (_movesText == null)
-        {
-          _movesText = GameObject.Find("MovesLeft").GetComponent<Text>();
-        }
-        _movesText.text = _movesLeft.ToString();
       }
+      else if(value == 0)
+      {
+        _movesLeft = 6;
+      }
+      _movesLeftText.text = _movesLeft.ToString();
     }
   }
 }

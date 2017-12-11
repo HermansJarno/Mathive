@@ -46,6 +46,10 @@ public class Hive : MonoBehaviour {
     }
     else
     {
+      if (!gameObject.GetComponent<Image>().isActiveAndEnabled)
+      {
+        gameObject.GetComponent<Image>().enabled = true;
+      }
       gameObject.transform.Find("Text").GetComponent<Text>().text = _value;
     }
   }
