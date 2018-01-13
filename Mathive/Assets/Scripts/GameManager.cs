@@ -10,16 +10,13 @@ public class GameManager : MonoBehaviour {
   [SerializeField] private float _maxTime;
   [SerializeField] private int _score = 0;
   [SerializeField] private int _goalScore = 0;
-  [SerializeField] private int _movesLeft = 6;
+  [SerializeField] private int _movesLeft = 30;
 
   [SerializeField] private int _targetNumber = 1;
   [SerializeField] private int _targetQuantityOfNumber = 20;
   [SerializeField] private int _currentQuantityOfNumber = 0;
 
-  private Text _targetText;
-  private Text _targetQuantityText;
   private Text _movesLeftText;
-
 
   //public void SetLevel(int level, int maxTime, int goalScore)
   //{
@@ -33,18 +30,16 @@ public class GameManager : MonoBehaviour {
   {
     TargetNumber = targetNumber;
     TargetQuantity = quantityNumber;
-    CurrentQuantity = 0;
   }
 
   public void GetNextTarget(int numberOfHives)
   {
     TargetNumber += _targetNumber;
-    if(numberOfHives * 2 > _targetNumber) _targetQuantityOfNumber = Mathf.CeilToInt((numberOfHives * 2) / (_targetNumber/1.5f));
+    if (numberOfHives * 2 > _targetNumber) _targetQuantityOfNumber = Mathf.CeilToInt((numberOfHives * 2) / (_targetNumber / 1.5f));
     if (_targetQuantityOfNumber == 1)
     {
       _targetQuantityOfNumber = 2;
     }
-    CurrentQuantity = 0;
   }
 
   public bool TargetIsCompleted()
@@ -91,11 +86,6 @@ public class GameManager : MonoBehaviour {
     get { return _targetNumber; }
     set
     {
-      if (_targetText == null)
-      {
-        _targetText = GameObject.Find("Target").GetComponent<Text>();
-      }
-      _targetText.text = value.ToString();
       _targetNumber = value;
     }
   }
@@ -104,20 +94,6 @@ public class GameManager : MonoBehaviour {
   {
     get { return _targetQuantityOfNumber; }
     set { _targetQuantityOfNumber = value; }
-  }
-
-  public int CurrentQuantity
-  {
-    get { return _currentQuantityOfNumber; }
-    set
-    {
-      if (_targetQuantityText == null)
-      {
-        _targetQuantityText = GameObject.Find("TargetQuantity").GetComponent<Text>();
-      }
-      _targetQuantityText.text = value.ToString() + "/" + _targetQuantityOfNumber;
-      _currentQuantityOfNumber = value;
-    }
   }
 
   public int Score
@@ -147,7 +123,7 @@ public class GameManager : MonoBehaviour {
       }
       else if(value == 0)
       {
-        _movesLeft = 6;
+        Debug.Log("GAME ENDED");
       }
       _movesLeftText.text = _movesLeft.ToString();
     }
