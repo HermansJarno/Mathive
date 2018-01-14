@@ -259,13 +259,11 @@ public class Grid : MonoBehaviour {
           // Fill the highest index
           if (j == (m_colums - 1))
           {
-            Debug.Log("predefined X value: " + m_HivePositions[i, j]);
-            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.position.x, m_Grid[i, j].transform.position.y + distanceBetweenHives, m_Grid[i, j].transform.position.z), m_HivePositions[i, j], lerpSpeed, 0f);
-            Debug.Log("new X value: " + m_Grid[i, j].transform.position.x);
+            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + distanceBetweenHives, m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
           }
           else
           {
-            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.position, m_HivePositions[i, j], lerpSpeed);
+            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed);
           }
 
           m_Grid[i, j].OnPositionChanged(i, j);

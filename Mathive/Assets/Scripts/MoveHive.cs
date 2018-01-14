@@ -68,7 +68,7 @@ public class MoveHive : MonoBehaviour {
       //Perform the actual lerping.  Notice that the first two parameters will always be the same
       //throughout a single lerp-processs (ie. they won't change until we hit the space-bar again
       //to start another lerp)
-      transform.position = Vector3.Lerp(_startPosition, _endPosition, percentageComplete);
+      transform.localPosition = Vector3.Lerp(_startPosition, _endPosition, percentageComplete);
       if (_alphaLerping)
       {
         transparancy.alpha = percentageComplete;
