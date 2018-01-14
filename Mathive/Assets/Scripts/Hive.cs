@@ -57,8 +57,7 @@ public class Hive : MonoBehaviour {
   public void SetHive(string setValue, int xValue, int yValue)
   {
     OnValueChanged(setValue);
-    x = xValue;
-    y = yValue;
+    OnPositionChanged(xValue, yValue);
   }
 
   public void DestroyMyself()

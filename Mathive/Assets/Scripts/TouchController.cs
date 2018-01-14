@@ -115,7 +115,7 @@ public class TouchController : MonoBehaviour {
         grid.CalculateScore(listHives);
         grid.UpdateGrid(listHives);
         GM.MovesLeft--;
-        grid.UpdateGM(listHives.Count, int.Parse(listHives[0].Value));
+        //grid.UpdateGM(listHives.Count, int.Parse(listHives[0].Value));
       }
 
       foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))
