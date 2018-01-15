@@ -10,6 +10,8 @@ public class Hive : MonoBehaviour {
   [SerializeField] private int x;
   [SerializeField] private int y;
 
+  // Implement that it holds image value
+
   public string Value
   {
     get { return _value; }

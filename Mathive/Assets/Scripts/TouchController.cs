@@ -60,6 +60,17 @@ public class TouchController : MonoBehaviour {
               // Are we deselecting?
               if (selectedHives.Peek() == resultObj)
               {
+                //if (resultHive == listHives[0])
+                //{
+                //  lineHives.RemoveAt(lineHives.Count - 1);
+                //  listHives.RemoveAt(listHives.Count - 1);
+                //  lastHive = resultHive;
+                //}
+                //else
+                //{
+                  
+                //}
+
                 lineHives.Remove(tempHive);
                 listHives.Remove(tempHive.GetComponent<Hive>());
                 lastHive = resultHive;
@@ -74,9 +85,10 @@ public class TouchController : MonoBehaviour {
                   selectedHives.Push(tempHive);
                 }
                 // If selected hive is already in the Stack, do nothing
-                if (!selectedHives.Contains(resultObj))
+                if (grid.IsHiveNear(lastHive, resultHive))
                 {
-                  if (grid.IsHiveNear(lastHive, resultHive))
+
+                  if (!selectedHives.Contains(resultObj))
                   {
                     if (lastHive.Value == resultHive.Value)
                     {
@@ -87,6 +99,16 @@ public class TouchController : MonoBehaviour {
                       listHives.Add(resultHive);
                     }
                   }
+                  //else
+                  //{
+                  //  if (resultHive == listHives[0])
+                  //  {
+                  //    selectedHives.Push(resultObj);
+                  //    lastHive = resultHive;
+                  //    lineHives.Add(resultObj);
+                  //    listHives.Add(resultHive);
+                  //  }
+                  //}
                 }
               }
               LRController.UpdatePoints(lineHives);

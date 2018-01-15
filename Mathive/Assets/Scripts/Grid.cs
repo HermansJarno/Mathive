@@ -6,11 +6,13 @@ using UnityEngine.UI;
 public class Grid : MonoBehaviour {
 
   public GameObject m_GridContainer;
-  public float m_refWidth = 800f;
+  [SerializeField] float m_refWidth = 800f;
+  [SerializeField] float m_refHeight = 1280;
   [SerializeField] float xRowOffset = 85;
   [SerializeField] float yRowOffset = 50;
   [SerializeField] float yHiveOffset = 100;
   [SerializeField] float lerpSpeed = 4;
+  [SerializeField] float offsetTop = 200;
 
   [SerializeField] private Vector3[,] m_HivePositions;
   [SerializeField] private Hive[,] m_Grid;
@@ -22,12 +24,13 @@ public class Grid : MonoBehaviour {
   private GameManager GM;
 
   float distanceBetweenHives = Mathf.Infinity;
-  [SerializeField] float m_scale;
-
-
+  [SerializeField] float m_scaleX;
+  [SerializeField] float m_scaleY;
+  [SerializeField] float extraScale = 0.1f;
 
   private int _numberOfFirstTarget = 50;
   private int m_rows, m_colums;
+
 
   // Use this for initialization
   void Start () {
@@ -36,51 +39,27 @@ public class Grid : MonoBehaviour {
     rowPrefab = Resources.Load("Row_") as GameObject;
     GM = GameObject.Find("Scripts").GetComponent<GameManager>();
 
-    Debug.Log(m_GridLevels.Levels[GM.Level-1][0]);
-    Debug.Log(m_GridLevels.Levels[GM.Level-1][1]);
+    Debug.Log("Number of rows: " + m_GridLevels.Levels[GM.Level-1][0]);
+    Debug.Log("number of columns: " + m_GridLevels.Levels[GM.Level-1][1]);
 
     InitializeGrid(m_GridLevels.Levels[GM.Level -1][0], m_GridLevels.Levels[GM.Level -1][1]);
 
   }
 
-  //void InitializeGrid()
-  //{ 
-  //  m_rows = m_GridContainer.transform.childCount;
-  //  m_colums = m_GridContainer.transform.GetChild(0).childCount;
-  //  m_Grid = new Hive[m_rows, m_colums];
-  //  m_HivePositions = new Vector3[m_rows, m_colums];
-  //  for (int i = 0; i < m_rows; i++)
-  //  {
-  //    for (int j = 0; j < m_colums; j++)
-  //    {
-  //      int num = Random.Range(1, 3);
-  //      m_Grid[i, j] = m_GridContainer.transform.GetChild(i).GetChild(j).GetComponent<Hive>();
-  //      m_Grid[i, j].SetHive(num.ToString(),i,j);
-  //      m_HivePositions[i, j] = m_Grid[i, j].transform.position;
-  //      if (j - 1 > 0)
-  //      {
-  //        float dist = Vector3.Distance(m_Grid[i, j].transform.position, m_Grid[i, j - 1].transform.position);
-  //        if (distanceBetweenHives > dist)
-  //        {
-  //          distanceBetweenHives = Mathf.Ceil(dist);
-  //        }
-  //      }   
-  //    }
-  //  }
-  //  GM.SetTargets(1, _numberOfFirstTarget);
-  //}
-
   void InitializeGrid(int rows, int colums)
   {
     float widthScreen = m_GridContainer.GetComponent<RectTransform>().rect.width;
-    m_scale = widthScreen / m_refWidth;
-    xRowOffset *= m_scale;
-    yRowOffset *= m_scale;
-    yHiveOffset *= m_scale;
+    float heightScreen = m_GridContainer.GetComponent<RectTransform>().rect.height;
+    m_scaleX = (widthScreen / m_refWidth) + extraScale;
+    m_scaleY = (heightScreen / m_refHeight) + extraScale;
+    offsetTop *= m_scaleY;
+    xRowOffset *= m_scaleX;
+    yRowOffset *= m_scaleX;
+    yHiveOffset *= m_scaleX;
     float width = xRowOffset * rows;
     float height = yRowOffset * colums;
     float xPosition = -(width / 2);
-    float yPosition = height / 2;
+    float yPosition = -(height / 2) - offsetTop;
 
     m_Grid = new Hive[rows, colums];
     m_HivePositions = new Vector3[rows, colums];
@@ -105,10 +84,28 @@ public class Grid : MonoBehaviour {
       for (int j = 0; j < colums; j++)
       {
         m_HivePositions[i, j] = new Vector3(xPosition + (xRowOffset / 2), yPosition, 0);
-        yPosition -= yHiveOffset;
+        yPosition += yHiveOffset;
       }
       xPosition += xRowOffset;
-      yPosition = height / 2;
+      yPosition = -(height / 2) - offsetTop;
+    }
+
+    //Fill the empty Hives
+    for (int i = 0; i < rows; i++)
+    {
+      for (int j = 0; j < colums; j++)
+      {
+        for (int r = 0; r < m_GridLevels.EmptyHivesLevels[GM.Level - 1][i].Length; r++)
+        {
+          //first the level, then the row, then check for index and validate them with J
+          if (m_GridLevels.EmptyHivesLevels[GM.Level - 1][i][r] == (j+1))
+          {
+            m_Grid[i, j] = InstantiateHive(i, j);
+            m_Grid[i, j].SetHive("0", i, j);
+          }
+        }
+
+      }
     }
 
     // Generate the hives
@@ -116,19 +113,21 @@ public class Grid : MonoBehaviour {
     {
       for (int j = 0; j < colums; j++)
       {
-        int num = Random.Range(1, 6);
-        m_Grid[i, j] = InstantiateHive(i,j);
-        m_Grid[i, j].SetHive(num.ToString(), i, j);
-        
-        if (j - 1 > 0)
+        if (m_Grid[i, j] == null)
         {
-          float dist = Vector3.Distance(m_Grid[i, j].transform.position, m_Grid[i, j - 1].transform.position);
-          if (distanceBetweenHives > dist)
+          int num = Random.Range(1, 6);
+          m_Grid[i, j] = InstantiateHive(i, j);
+          m_Grid[i, j].SetHive(num.ToString(), i, j);
+
+          if (j - 1 > 0)
           {
-            distanceBetweenHives = Mathf.Ceil(dist);
+            float dist = Vector3.Distance(m_Grid[i, j].transform.position, m_Grid[i, j - 1].transform.position);
+            if (distanceBetweenHives > dist)
+            {
+              distanceBetweenHives = Mathf.Ceil(dist);
+            }
           }
         }
-        //System.Threading.Thread.Sleep(System.TimeSpan.FromSeconds(0.5));
       }
     }
     GM.SetTargets(1, _numberOfFirstTarget);
@@ -259,7 +258,7 @@ public class Grid : MonoBehaviour {
           // Fill the highest index
           if (j == (m_colums - 1))
           {
-            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + distanceBetweenHives, m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
+            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + yHiveOffset, m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
           }
           else
           {
@@ -319,7 +318,7 @@ public class Grid : MonoBehaviour {
   Hive InstantiateHive(int x, int y)
   {
     GameObject prefabHive = Instantiate(hivePrefab, m_HivePositions[x, y], hivePrefab.transform.rotation) as GameObject;
-    prefabHive.GetComponent<RectTransform>().localScale = new Vector3(m_scale,m_scale,m_scale);
+    prefabHive.GetComponent<RectTransform>().localScale = new Vector3(m_scaleX,m_scaleX,m_scaleX);
     prefabHive.transform.SetParent(m_GridContainer.transform.GetChild(x),false);
     Hive tempHive = prefabHive.GetComponent<Hive>();
     tempHive.OnPositionChanged(x, y);
