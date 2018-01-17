@@ -5,14 +5,25 @@ using UnityEngine.UI;
 
 public class Hive : MonoBehaviour {
 
-  [SerializeField] string _value;
+  [SerializeField] int _value;
 
   [SerializeField] private int x;
   [SerializeField] private int y;
 
+  public Sprite normalSprite;
+  public Sprite selectedSprite;
+
+  private Image imageHive;
+  private bool selected = false;
+
+  private void Start()
+  {
+    imageHive = gameObject.GetComponent<Image>();
+  }
+
   // Implement that it holds image value
 
-  public string Value
+  public int Value
   {
     get { return _value; }
     set { _value = value; }
@@ -38,10 +49,29 @@ public class Hive : MonoBehaviour {
     transform.SetSiblingIndex(newY);
   }
 
-  public void OnValueChanged(string newValue)
+  public void SwitchState()
+  {
+    selected = !selected;
+    if (selected)
+    {
+      imageHive.sprite = selectedSprite;
+    }
+    else
+    {
+      imageHive.sprite = normalSprite;
+    }
+  }
+
+  public void SetNormalImage()
+  {
+    selected = false;
+    imageHive.sprite = normalSprite;
+  }
+
+  public void OnValueChanged(int newValue)
   {
     _value = newValue;
-    if ((int.Parse(_value) == 0))
+    if (_value == 0)
     {
       gameObject.GetComponent<Image>().enabled = false;
       gameObject.transform.Find("Text").GetComponent<Text>().text = "";
@@ -52,11 +82,11 @@ public class Hive : MonoBehaviour {
       {
         gameObject.GetComponent<Image>().enabled = true;
       }
-      gameObject.transform.Find("Text").GetComponent<Text>().text = _value;
+      gameObject.transform.Find("Text").GetComponent<Text>().text = _value.ToString();
     }
   }
 
-  public void SetHive(string setValue, int xValue, int yValue)
+  public void SetHive(int setValue, int xValue, int yValue)
   {
     OnValueChanged(setValue);
     OnPositionChanged(xValue, yValue);

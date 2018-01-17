@@ -16,11 +16,13 @@ public class TouchController : MonoBehaviour {
   Stack<GameObject> selectedHives = new Stack<GameObject>();
   List<GameObject> lineHives = new List<GameObject>();
   List<Hive> listHives = new List<Hive>();
+  List<Hive> specialSelectionHives = new List<Hive>();
   string currentHive = "";
   Hive lastHive;
   Grid grid;
   LineRenderController LRController;
   GameManager GM;
+  bool specialSelectionActivated = false;
 
   private void Start()
   {
@@ -56,59 +58,75 @@ public class TouchController : MonoBehaviour {
               {
                  tempHive = selectedHives.Pop();
               }
-
-              // Are we deselecting?
-              if (selectedHives.Peek() == resultObj)
+              if (specialSelectionActivated)
               {
-                //if (resultHive == listHives[0])
-                //{
-                //  lineHives.RemoveAt(lineHives.Count - 1);
-                //  listHives.RemoveAt(listHives.Count - 1);
-                //  lastHive = resultHive;
-                //}
-                //else
-                //{
-                  
-                //}
-
-                lineHives.Remove(tempHive);
-                listHives.Remove(tempHive.GetComponent<Hive>());
-                lastHive = resultHive;
-                if (tempHive != null) tempHive.GetComponent<Image>().sprite = normalSprite;
-
-              }
-              else
-              {
-                // If not deselecting, repush
-                if (tempHive != null)
+                // Are we deselecting? Remove all special selection again
+                if (selectedHives.Peek() == resultObj)
+                {
+                  if (resultHive == lastHive)
+                  {
+                    specialSelectionHives = grid.DeselectAllHivesOfSameValue(specialSelectionHives);
+                    specialSelectionActivated = false;
+                    lineHives.RemoveAt(lineHives.Count - 1);
+                  }
+                  else
+                  {
+                    selectedHives.Push(tempHive);
+                  }
+                }
+                else
                 {
                   selectedHives.Push(tempHive);
                 }
-                // If selected hive is already in the Stack, do nothing
-                if (grid.IsHiveNear(lastHive, resultHive))
+              }
+              else
+              {
+                // Are we deselecting?
+                if (selectedHives.Peek() == resultObj)
                 {
-
-                  if (!selectedHives.Contains(resultObj))
+                  lineHives.Remove(tempHive);
+                  if (tempHive.GetComponent<Hive>() != null)
                   {
-                    if (lastHive.Value == resultHive.Value)
+                    Hive hive = tempHive.GetComponent<Hive>();
+                    listHives.Remove(hive);
+                    lastHive = resultHive;
+                    hive.SetNormalImage();
+                  } 
+                }
+                else
+                {
+                  // If not deselecting, repush
+                  if (tempHive != null)
+                  {
+                    selectedHives.Push(tempHive);
+                  }
+                  // If selected hive is already in the Stack, do nothing
+                  if (grid.IsHiveNear(lastHive, resultHive))
+                  {
+
+                    if (!selectedHives.Contains(resultObj))
                     {
-                      selectedHives.Push(resultObj);
-                      lastHive = resultHive;
-                      resultObj.GetComponent<Image>().sprite = selectedSprite;
-                      lineHives.Add(resultObj);
-                      listHives.Add(resultHive);
+                      if (lastHive.Value == resultHive.Value)
+                      {
+                        selectedHives.Push(resultObj);
+                        lastHive = resultHive;
+                        resultObj.GetComponent<Image>().sprite = selectedSprite;
+                        lineHives.Add(resultObj);
+                        listHives.Add(resultHive);
+                      }
+                    }
+                    else
+                    {
+                      // Make a full round, reach first hive again
+                      if (resultHive == listHives[0])
+                      {
+                        selectedHives.Push(resultObj);
+                        lineHives.Add(resultObj);
+                        specialSelectionHives = grid.ReturnAllHivesOfSameValue(resultHive.Value,listHives);
+                        specialSelectionActivated = true;
+                      }
                     }
                   }
-                  //else
-                  //{
-                  //  if (resultHive == listHives[0])
-                  //  {
-                  //    selectedHives.Push(resultObj);
-                  //    lastHive = resultHive;
-                  //    lineHives.Add(resultObj);
-                  //    listHives.Add(resultHive);
-                  //  }
-                  //}
                 }
               }
               LRController.UpdatePoints(lineHives);
@@ -116,7 +134,7 @@ public class TouchController : MonoBehaviour {
           }
           else
           {
-            // Push the first hive
+            // Push the first hive of the list
             selectedHives.Push(resultObj);
             lineHives.Add(resultObj);
             listHives.Add(resultHive);
@@ -134,16 +152,34 @@ public class TouchController : MonoBehaviour {
     {
       if (listHives.Count > 1)
       {
+        if (specialSelectionActivated)
+        {
+          //Store last index in temporary hive, otherwise it gets deleted
+          Hive tempHive = listHives[0];
+          listHives.RemoveAt(0);
+
+          foreach (Hive hive in specialSelectionHives)
+          {
+            listHives.Add(hive);
+          }
+
+          //This hive gets the sum of all hives
+          listHives.Add(tempHive);
+        }
         grid.CalculateScore(listHives);
         grid.UpdateGrid(listHives);
         GM.MovesLeft--;
-        //grid.UpdateGM(listHives.Count, int.Parse(listHives[0].Value));
       }
 
-      foreach (GameObject Hive in GameObject.FindGameObjectsWithTag("Hive"))
+      if (listHives.Count > 0)
       {
-        Hive.GetComponent<Image>().sprite = normalSprite;
+        foreach (Hive Hive in listHives)
+        {
+          Hive.SetNormalImage();
+        }
       }
+
+      specialSelectionActivated = false;
       selectedHives.Clear();
       lineHives.Clear();
       listHives.Clear();
