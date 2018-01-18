@@ -26,6 +26,7 @@ public class Grid : MonoBehaviour {
   float distanceBetweenHives = Mathf.Infinity;
   [SerializeField] float m_scaleX;
   [SerializeField] float m_scaleY;
+  float m_midScale;
   [SerializeField] float extraScale = 0.1f;
 
   private int _numberOfFirstTarget = 50;
@@ -52,6 +53,7 @@ public class Grid : MonoBehaviour {
     float heightScreen = m_GridContainer.GetComponent<RectTransform>().rect.height;
     m_scaleX = (widthScreen / m_refWidth) + extraScale;
     m_scaleY = (heightScreen / m_refHeight) + extraScale;
+
     offsetTop *= m_scaleY;
     xRowOffset *= m_scaleX;
     yRowOffset *= m_scaleX;
@@ -164,7 +166,6 @@ public class Grid : MonoBehaviour {
 
     hives[hives.Count - 1].OnValueChanged(resultNumber);
 
-    //resultNumber = Mathf.RoundToInt(Mathf.Pow(currentNumber, macht));
     int tempScore = int.Parse(Score.text);
     foreach (Hive hive in hives)
     {
@@ -298,6 +299,45 @@ public class Grid : MonoBehaviour {
     return temphives;
   }
 
+  public void ShuffleGrid()
+  {
+    Hive[,] temphives = new Hive[m_rows,m_colums];
+
+    for (int i = 0; i < m_rows; i++)
+    {
+      for (int j = 0; j < m_colums; j++)
+      {
+        temphives[i, j] = null;
+
+      }
+    }
+
+    for (int i = 0; i < m_rows; i++)
+    {
+      for (int j = 0; j < m_colums; j++)
+      {
+        if (m_Grid[i, j].Value != 0 && temphives[i,j] == null)
+        {
+          bool newIndexFound = false;
+          int newIndexI = 0;
+          int newIndexJ = 0;
+
+          while (!newIndexFound)
+          {
+            newIndexI = Random.Range(0, i + 1);
+            newIndexJ = Random.Range(0, j + 1);
+            if (m_Grid[newIndexI, newIndexJ].Value != 0 && temphives[newIndexI, newIndexJ] == null) newIndexFound = true;
+          }
+          Hive tempHive = m_Grid[i, j];
+          temphives[i,j] = m_Grid[i, j];
+          temphives[i, j] = m_Grid[newIndexI, newIndexJ];
+          m_Grid[i, j].SetHive(m_Grid[newIndexI, newIndexJ].Value, newIndexI, newIndexJ);
+          m_Grid[newIndexI, newIndexJ].SetHive(tempHive.Value, i, j);
+        }
+      }
+    }
+  }
+
   //public void ShuffleGrid()
   //{
   //  Shuffle(m_Grid);
@@ -349,85 +389,85 @@ public class Grid : MonoBehaviour {
   //  }
   //}
 
-  public void ShuffleGrid()
-  {
-    int lengthRow = m_Grid.GetLength(0);
-
-    for (int i = m_Grid.GetLength(1) - 1; i > 0; i--)
-    {
-      int i0 = i / lengthRow;
-      int i1 = i % lengthRow;
-
-      int j = Random.Range(0,i + 1);
-      int j0 = j / lengthRow;
-      int j1 = j % lengthRow;
-
-      if (m_Grid[i0, i1].Value != 0 && m_Grid[j0, j1].Value != 0)
-      {
-        Hive temp = m_Grid[i0, i1];
-        m_Grid[i0, i1] = m_Grid[j0, j1];
-        m_Grid[i0, i1].gameObject.AddComponent<MoveHive>();
-        m_Grid[i0, i1].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i0, i1].transform.localPosition, m_HivePositions[j0, j1], lerpSpeed);
-        m_Grid[i0, i1].OnPositionChanged(j0, j1);
-
-        m_Grid[j0, j1] = temp;
-        m_Grid[j0, j1].gameObject.AddComponent<MoveHive>();
-        m_Grid[j0, j1].gameObject.GetComponent<MoveHive>().BeginLerp(temp.transform.localPosition, m_HivePositions[i0, i1], lerpSpeed);
-        m_Grid[j0, j1].OnPositionChanged(i0, i1);
-      }
-
-    }
-  }
-
   //public void ShuffleGrid()
   //{
-  //  Hive[,] tempHives = m_Grid;
+  //  int lengthRow = m_Grid.GetLength(0);
 
-  //  List<Hive> hives = new List<Hive>();
-  //  foreach (Hive hive in m_Grid)
+  //  for (int i = m_Grid.GetLength(1) - 1; i > 0; i--)
   //  {
-  //    hives.Add(hive);
-  //  }
+  //    int i0 = i / lengthRow;
+  //    int i1 = i % lengthRow;
 
-  //  DestroyHives(hives);
+  //    int j = Random.Range(0,i + 1);
+  //    int j0 = j / lengthRow;
+  //    int j1 = j % lengthRow;
 
-  //  for (int i = 0; i < m_rows; i++)
-  //  {
-  //    for (int j = 0; j < m_colums; j++)
+  //    if (m_Grid[i0, i1].Value != 0 && m_Grid[j0, j1].Value != 0)
   //    {
-  //      if (m_Grid[i, j] == null)
-  //      {
-  //        int index = Random.Range(0, hives.Count);
-  //        m_Grid[i, j] = hives[index];
-  //        m_Grid[i, j].gameObject.AddComponent<MoveHive>();
+  //      Hive temp = m_Grid[i0, i1];
+  //      m_Grid[i0, i1] = m_Grid[j0, j1];
+  //      m_Grid[i0, i1].gameObject.AddComponent<MoveHive>();
+  //      m_Grid[i0, i1].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i0, i1].transform.localPosition, m_HivePositions[j0, j1], lerpSpeed);
+  //      m_Grid[i0, i1].OnPositionChanged(j0, j1);
 
-  //        m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed);
-
-  //        m_Grid[i, j].OnPositionChanged(i, j);
-  //        hives.RemoveAt(index);
-  //      }
+  //      m_Grid[j0, j1] = temp;
+  //      m_Grid[j0, j1].gameObject.AddComponent<MoveHive>();
+  //      m_Grid[j0, j1].gameObject.GetComponent<MoveHive>().BeginLerp(temp.transform.localPosition, m_HivePositions[i0, i1], lerpSpeed);
+  //      m_Grid[j0, j1].OnPositionChanged(i0, i1);
   //    }
+
   //  }
   //}
 
-  public void Shuffle(Hive[,] array)
-  {
-    int lengthRow = array.GetLength(1);
+  ////public void ShuffleGrid()
+  ////{
+  ////  Hive[,] tempHives = m_Grid;
 
-    for (int i = array.Length - 1; i > 0; i--)
-    {
-      int i0 = i / lengthRow;
-      int i1 = i % lengthRow;
+  ////  List<Hive> hives = new List<Hive>();
+  ////  foreach (Hive hive in m_Grid)
+  ////  {
+  ////    hives.Add(hive);
+  ////  }
 
-      int j = Random.Range(0,i + 1);
-      int j0 = j / lengthRow;
-      int j1 = j % lengthRow;
+  ////  DestroyHives(hives);
 
-      Hive temp = array[i0, i1];
-      array[i0, i1] = array[j0, j1];
-      array[j0, j1] = temp;
-    }
-  }
+  ////  for (int i = 0; i < m_rows; i++)
+  ////  {
+  ////    for (int j = 0; j < m_colums; j++)
+  ////    {
+  ////      if (m_Grid[i, j] == null)
+  ////      {
+  ////        int index = Random.Range(0, hives.Count);
+  ////        m_Grid[i, j] = hives[index];
+  ////        m_Grid[i, j].gameObject.AddComponent<MoveHive>();
+
+  ////        m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed);
+
+  ////        m_Grid[i, j].OnPositionChanged(i, j);
+  ////        hives.RemoveAt(index);
+  ////      }
+  ////    }
+  ////  }
+  ////}
+
+  //public void Shuffle(Hive[,] array)
+  //{
+  //  int lengthRow = array.GetLength(1);
+
+  //  for (int i = array.Length - 1; i > 0; i--)
+  //  {
+  //    int i0 = i / lengthRow;
+  //    int i1 = i % lengthRow;
+
+  //    int j = Random.Range(0,i + 1);
+  //    int j0 = j / lengthRow;
+  //    int j1 = j % lengthRow;
+
+  //    Hive temp = array[i0, i1];
+  //    array[i0, i1] = array[j0, j1];
+  //    array[j0, j1] = temp;
+  //  }
+  //}
 
   public List<Hive> DeselectAllHivesOfSameValue(List<Hive> hives)
   {
