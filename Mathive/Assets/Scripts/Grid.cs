@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Grid : MonoBehaviour {
 
+  public GameObject m_GridContainerBackgrounds;
   public GameObject m_GridContainer;
   [SerializeField] float m_refWidth = 800f;
   [SerializeField] float m_refHeight = 1280;
@@ -31,6 +32,7 @@ public class Grid : MonoBehaviour {
 
   private int m_colums, m_rows;
   private int midNumber;
+  int[] possibleValues = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192 };
 
 
   // Use this for initialization
@@ -78,11 +80,13 @@ public class Grid : MonoBehaviour {
     {
       if ((i % 2) == 0)
       {
-        InstantiateRows(i + 1, yRowOffset);
+        InstantiateRows(i + 1, yRowOffset, m_GridContainer);
+        InstantiateRows(i + 1, yRowOffset, m_GridContainerBackgrounds);
       }
       else
       {
-        InstantiateRows(i + 1, 0);
+        InstantiateRows(i + 1, 0, m_GridContainer);
+        InstantiateRows(i + 1, 0, m_GridContainerBackgrounds);
       }
     }
 
@@ -123,7 +127,7 @@ public class Grid : MonoBehaviour {
       {
         if (m_Grid[i, j] == null)
         {
-          int num = Random.Range(1, 6);
+          int num = Random.Range(1, 7);
           m_Grid[i, j] = InstantiateHive(i, j);
           m_Grid[i, j].SetHive(num, i, j);
 
@@ -187,7 +191,6 @@ public class Grid : MonoBehaviour {
     if (GM.TargetIsCompleted())
     {
       GM.GetNextTarget(m_colums * m_rows);
-      ActivateHives();
     }
   }
 
@@ -195,11 +198,8 @@ public class Grid : MonoBehaviour {
   {
     foreach (Hive hive in hives)
     {
-      if (hive != hives[hives.Count - 1])
-      {
-          StartCoroutine(hive.transform.Scale(Vector3.zero, 0.2f, hive));
-          RemoveFromGrid(hive);
-      }
+      StartCoroutine(hive.transform.Scale(Vector3.zero, 0.2f, hive));
+      RemoveFromGrid(hive);
     }
   }
 
@@ -229,27 +229,7 @@ public class Grid : MonoBehaviour {
         }
       }
     }
-    CalculateMidNumber();
-  }
-
-  public void UpdateGrid()
-  {
-    for (int i = 0; i < m_colums; i++)
-    {
-      for (int j = 0; j < m_rows; j++)
-      {
-        if (m_Grid[i, j] == null)
-        {
-          m_Grid[i, j] = FindNextHive(i, j);
-          m_Grid[i, j].gameObject.AddComponent<MoveHive>();
-
-          m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed);
-          
-
-          m_Grid[i, j].OnPositionChanged(i, j);
-        }
-      }
-    }
+    //CalculateMidNumber();
   }
 
   void RemoveFromGrid(Hive hive)
@@ -299,7 +279,7 @@ public class Grid : MonoBehaviour {
         if (m_Grid[i, j].Value == value && !notToBeSelected.Contains(m_Grid[i, j]))
         {
           temphives.Add(m_Grid[i, j]);
-          m_Grid[i, j].SwitchState();
+          m_Grid[i, j].SetSelectedImage();
         }
       }
     }
@@ -317,7 +297,10 @@ public class Grid : MonoBehaviour {
     {
       for (int j = 0; j < m_rows; j++)
       {
-        Swap(i, j, Random.Range(0, i - 1), Random.Range(0, j - 1), array);
+        int newI = Random.Range(0, i - 1);
+        int newJ = Random.Range(0, j - 1);
+        if(m_Grid[i,j].Value != 0 && m_Grid[newI, newJ].Value != 0)
+        Swap(i, j, newI, newJ, array);
       }
     }
   }
@@ -325,8 +308,12 @@ public class Grid : MonoBehaviour {
   void Swap(int currentI, int currentJ, int newI, int newJ, Hive[,] array)
   {
     int temp = array[currentI, currentJ].Value;
-    array[currentI, currentJ].SetHive(array[newI, newJ].Value, newI, newJ);
-    array[newI, newJ].SetHive(temp, currentI, currentJ);
+    //array[currentI, currentJ].SetHive(array[newI, newJ].Value, newI, newJ);
+    array[currentI, currentJ].OnValueChanged(array[newI, newJ].Value);
+    //array[currentI, currentJ].transform.SetParent(m_GridContainer.transform.GetChild(newI), false);
+    //array[newI, newJ].SetHive(temp, currentI, currentJ);
+    array[newI, newJ].OnValueChanged(temp);
+    //array[newI, newJ].transform.SetParent(m_GridContainer.transform.GetChild(currentI), false);
   }
 
   public List<Hive> DeselectAllHivesOfSameValue(List<Hive> hives)
@@ -338,10 +325,10 @@ public class Grid : MonoBehaviour {
     return null;
   }
 
-  void InstantiateRows(int number,float offsetY)
+  void InstantiateRows(int number,float offsetY, GameObject grid)
   {
     GameObject row = Instantiate(rowPrefab, new Vector3(0, 0 + offsetY, 0), rowPrefab.transform.rotation) as GameObject;
-    row.transform.SetParent(m_GridContainer.transform, false);
+    row.transform.SetParent(grid.transform, false);
     row.name = string.Format("{0}{1}", "Row_", number);
   }
 
@@ -366,8 +353,6 @@ public class Grid : MonoBehaviour {
           number += m_Grid[i, j].Value;
       }
     }
-    Debug.Log(number);
-    Debug.Log(m_Grid.Length);
     
     number = Mathf.FloorToInt(number / (m_Grid.Length/2));
     Debug.Log(number);
@@ -376,46 +361,46 @@ public class Grid : MonoBehaviour {
 
   int CalculateValue(int target)
   {
-    return Random.Range(1, target+1);
+    return Random.Range(1, 7);
   }
 
-  void ResetHives(List<Hive> hives)
-  {
-    ActivateHives();
-    for (int i = 0; i < hives.Count; i++)
-    {
-      if (i != hives.Count - 1)
-      {
-        int num = Random.Range(1, 3);
-        hives[i].OnValueChanged(num);
-        StartCoroutine(hives[i].transform.Scale(Vector3.zero, 0.2f,false));
-      }
-    }
-  }
+  //void ResetHives(List<Hive> hives)
+  //{
+  //  ActivateHives();
+  //  for (int i = 0; i < hives.Count; i++)
+  //  {
+  //    if (i != hives.Count - 1)
+  //    {
+  //      int num = Random.Range(1, 3);
+  //      hives[i].OnValueChanged(num);
+  //      StartCoroutine(hives[i].transform.Scale(Vector3.zero, 0.2f,false));
+  //    }
+  //  }
+  //}
 
-  void ActivateHives()
-  {
-    List<GameObject> tempHives = new List<GameObject>();
+  //void ActivateHives()
+  //{
+  //  List<GameObject> tempHives = new List<GameObject>();
 
-    for (int i = 0; i < m_colums; i++)
-    {
-      for (int j = 0; j < m_rows; j++)
-      {
-        if (m_Grid[i,j].Value == 0)
-        {
-          tempHives.Add(m_Grid[i, j].gameObject);
-        }
-      }
-    }
+  //  for (int i = 0; i < m_colums; i++)
+  //  {
+  //    for (int j = 0; j < m_rows; j++)
+  //    {
+  //      if (m_Grid[i,j].Value == 0)
+  //      {
+  //        tempHives.Add(m_Grid[i, j].gameObject);
+  //      }
+  //    }
+  //  }
 
-    if (tempHives.Count > 0)
-    {
-      int rndIndex = Random.Range(0, tempHives.Count);
-      Hive hive = tempHives[rndIndex].GetComponent<Hive>();
-      hive.OnValueChanged(Random.Range(1, 3));
-      StartCoroutine(tempHives[rndIndex].transform.Scale(hivePrefab.transform.localScale, 0.2f,true));
-    }
-  }
+  //  if (tempHives.Count > 0)
+  //  {
+  //    int rndIndex = Random.Range(0, tempHives.Count);
+  //    Hive hive = tempHives[rndIndex].GetComponent<Hive>();
+  //    hive.OnValueChanged(Random.Range(1, 3));
+  //    StartCoroutine(tempHives[rndIndex].transform.Scale(hivePrefab.transform.localScale, 0.2f,true));
+  //  }
+  //}
 }
 
 

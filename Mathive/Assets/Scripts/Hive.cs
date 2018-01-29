@@ -9,11 +9,37 @@ public class Hive : MonoBehaviour {
 
   [SerializeField] private int x;
   [SerializeField] private int y;
+  private float scaleAnimation = 1.2f;
+  private float speed = 2f;
 
-  public Sprite normalSprite;
-  public Sprite selectedSprite;
+  private Sprite normalSprite;
+  private Sprite selectedSprite;
+  private Sprite backgroundSprite;
 
-  private Image imageHive;
+  public Sprite redSprite;
+  public Sprite blueSprite;
+  public Sprite yellowSprite;
+  public Sprite greenSprite;
+  public Sprite magentaSprite;
+  public Sprite cyanSprite;
+
+  public Sprite redSelection;
+  public Sprite blueSelection;
+  public Sprite yellowSelection;
+  public Sprite greenSelection;
+  public Sprite magentaSelection;
+  public Sprite cyanSelection;
+
+  public Sprite redBackground;
+  public Sprite blueBackground;
+  public Sprite yellowBackground;
+  public Sprite greenBackground;
+  public Sprite magentaBackground;
+  public Sprite cyanBackground;
+
+  public GameObject backgroundAnimation;
+
+  public Image imageHive;
   private bool selected = false;
 
   private void Start()
@@ -62,6 +88,12 @@ public class Hive : MonoBehaviour {
     }
   }
 
+  public void SetSelectedImage() {
+    selected = true;
+    imageHive.sprite = selectedSprite;
+    InstantiateBackground();
+  }
+
   public void SetNormalImage()
   {
     selected = false;
@@ -71,10 +103,46 @@ public class Hive : MonoBehaviour {
   public void OnValueChanged(int newValue)
   {
     _value = newValue;
+    switch (_value)
+    {
+      case 1:
+        normalSprite = redSprite;
+        selectedSprite = redSelection;
+        backgroundSprite = redBackground;
+        break;
+      case 2:
+        normalSprite = greenSprite;
+        selectedSprite = greenSelection;
+        backgroundSprite = greenBackground;
+        break;
+      case 3:
+        normalSprite = blueSprite;
+        selectedSprite = blueSelection;
+        backgroundSprite = blueBackground;
+        break;
+      case 4:
+        normalSprite = yellowSprite;
+        selectedSprite = yellowSelection;
+        backgroundSprite = yellowBackground;
+        break;
+      case 5:
+        normalSprite = cyanSprite;
+        selectedSprite = cyanSelection;
+        backgroundSprite = cyanBackground;
+        break;
+      case 6:
+        normalSprite = magentaSprite;
+        selectedSprite = magentaSelection;
+        backgroundSprite = magentaBackground;
+        break;
+      default:
+        break;
+    }
+    SetNormalImage();
     if (_value == 0)
     {
       gameObject.GetComponent<Image>().enabled = false;
-      gameObject.transform.Find("Text").GetComponent<Text>().text = "";
+      //gameObject.transform.Find("Text").GetComponent<Text>().text = "";
     }
     else
     {
@@ -82,7 +150,7 @@ public class Hive : MonoBehaviour {
       {
         gameObject.GetComponent<Image>().enabled = true;
       }
-      gameObject.transform.Find("Text").GetComponent<Text>().text = _value.ToString();
+      //gameObject.transform.Find("Text").GetComponent<Text>().text = _value.ToString();
     }
   }
 
@@ -97,4 +165,11 @@ public class Hive : MonoBehaviour {
     Destroy(gameObject);
   }
 
+  void InstantiateBackground()
+  {
+    GameObject prefabAnimation = Instantiate(backgroundAnimation, transform.localPosition, backgroundAnimation.transform.rotation) as GameObject;
+    prefabAnimation.GetComponent<RectTransform>().localScale = new Vector3(transform.localScale.x, transform.localScale.x, transform.localScale.x);
+    prefabAnimation.transform.SetParent(GameObject.Find("BGGrid").transform.GetChild(x), false);
+    prefabAnimation.GetComponent<HiveAnimation>().BeginScale(scaleAnimation, speed, backgroundSprite);
+  }
 }

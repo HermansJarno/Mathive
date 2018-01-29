@@ -6,22 +6,30 @@ using UnityEngine.UI;
 
 public class TouchController : MonoBehaviour {
 
-  public Sprite normalSprite;
-  public Sprite selectedSprite;
-
   //Change me to change the touch phase used.
   TouchPhase touchPhase = TouchPhase.Moved;
   public GraphicRaycaster myGRaycaster;
 
+  // 4 Lists to controll them all
   Stack<GameObject> selectedHives = new Stack<GameObject>();
-  List<GameObject> lineHives = new List<GameObject>();
+  List<Vector3> lineHives = new List<Vector3>();
   List<Hive> listHives = new List<Hive>();
   List<Hive> specialSelectionHives = new List<Hive>();
+
+  // Keeps track of current/last hive selected
   string currentHive = "";
   Hive lastHive;
+
+  // Get functions of grid
   Grid grid;
+
+  //Get functions of LR
   LineRenderController LRController;
+
+  //Get function of GM
   GameManager GM;
+
+  //Handle special moment
   bool specialSelectionActivated = false;
 
   private void Start()
@@ -56,7 +64,7 @@ public class TouchController : MonoBehaviour {
               GameObject tempHive = null;
               if (selectedHives.Count > 1)
               {
-                 tempHive = selectedHives.Pop();
+                tempHive = selectedHives.Pop();
               }
               if (specialSelectionActivated)
               {
@@ -84,14 +92,17 @@ public class TouchController : MonoBehaviour {
                 // Are we deselecting?
                 if (selectedHives.Peek() == resultObj)
                 {
-                  lineHives.Remove(tempHive);
-                  if (tempHive.GetComponent<Hive>() != null)
+                  if (tempHive != null)
                   {
-                    Hive hive = tempHive.GetComponent<Hive>();
-                    listHives.Remove(hive);
-                    lastHive = resultHive;
-                    hive.SetNormalImage();
-                  } 
+                    lineHives.Remove(tempHive.transform.position);
+                    if (tempHive.GetComponent<Hive>() != null)
+                    {
+                      Hive hive = tempHive.GetComponent<Hive>();
+                      listHives.Remove(hive);
+                      lastHive = resultHive;
+                      hive.SetNormalImage();
+                    }
+                  }
                 }
                 else
                 {
@@ -103,15 +114,14 @@ public class TouchController : MonoBehaviour {
                   // If selected hive is already in the Stack, do nothing
                   if (grid.IsHiveNear(lastHive, resultHive))
                   {
-
                     if (!selectedHives.Contains(resultObj))
                     {
                       if (lastHive.Value == resultHive.Value)
                       {
                         selectedHives.Push(resultObj);
                         lastHive = resultHive;
-                        resultObj.GetComponent<Image>().sprite = selectedSprite;
-                        lineHives.Add(resultObj);
+                        resultHive.SetSelectedImage();
+                        lineHives.Add(resultObj.transform.position);
                         listHives.Add(resultHive);
                       }
                     }
@@ -121,29 +131,30 @@ public class TouchController : MonoBehaviour {
                       if (resultHive == listHives[0])
                       {
                         selectedHives.Push(resultObj);
-                        lineHives.Add(resultObj);
-                        specialSelectionHives = grid.ReturnAllHivesOfSameValue(resultHive.Value,listHives);
+                        lineHives.Add(resultObj.transform.position);
+                        specialSelectionHives = grid.ReturnAllHivesOfSameValue(resultHive.Value, listHives);
                         specialSelectionActivated = true;
                       }
                     }
                   }
                 }
               }
-              LRController.UpdatePoints(lineHives);
+              LRController.UpdatePoints(lineHives, Vector3.zero,listHives[0].Value);
             }
           }
           else
           {
             // Push the first hive of the list
             selectedHives.Push(resultObj);
-            lineHives.Add(resultObj);
+            lineHives.Add(resultObj.transform.position);
             listHives.Add(resultHive);
             lastHive = resultHive;
-            resultObj.GetComponent<Image>().sprite = selectedSprite;
+            resultHive.SetSelectedImage();
           }
           currentHive = resultObj.name;
-          
         }
+        if(!specialSelectionActivated && listHives.Count > 0)
+        LRController.UpdatePoints(lineHives, Input.GetTouch(0).position, listHives[0].Value);
       }
     }
     // Deselect all hives on touch end.
@@ -183,7 +194,7 @@ public class TouchController : MonoBehaviour {
       selectedHives.Clear();
       lineHives.Clear();
       listHives.Clear();
-      LRController.UpdatePoints(lineHives);
+      LRController.UpdatePoints(lineHives, Vector3.zero,0);
     }
   }
 }
