@@ -212,13 +212,18 @@ public class Grid : MonoBehaviour {
       {
         if (m_Grid[i, j] == null)
         {
-          m_Grid[i, j] = FindNextHive(i, j);
+          bool hadToCreateNewIndex = false;
+          m_Grid[i, j] = FindNextHive(i, j, out hadToCreateNewIndex);
           m_Grid[i, j].gameObject.AddComponent<MoveHive>();
 
           // Fill the highest index
-          if (j == (m_rows - 1))
+          //if (j == (m_rows - 1))
+          //{
+          //  m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + (yHiveOffset), m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
+          //}
+          if (hadToCreateNewIndex)
           {
-            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + yHiveOffset, m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
+            m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + (yHiveOffset * (m_rows-j)), m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
           }
           else
           {
@@ -246,11 +251,13 @@ public class Grid : MonoBehaviour {
     }
   }
 
-  Hive FindNextHive(int i, int j)
+  Hive FindNextHive(int i, int j, out bool newHive)
   {
+    newHive = false;
     // MAX INDEX
     if (j == m_rows - 1)
     {
+      newHive = true;
       return InstantiateHive(i, j);
     }
     else
@@ -264,7 +271,7 @@ public class Grid : MonoBehaviour {
       }
       else
       {
-        return FindNextHive(i, j);
+        return FindNextHive(i, j, out newHive);
       }
     }
   }

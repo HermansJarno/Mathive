@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 3bbd3c21e5e64d8428eeccca42f424ae
+timeCreated: 1517266030
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Santor
+  fontNames:
+  - Santor
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

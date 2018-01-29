@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 4bc25c2089a90fa4b99ae484c3f70738
+timeCreated: 1517266030
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Chosence
+  fontNames:
+  - Chosence
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 29925eb7440df6d49a66b2f5f9868005, type: 3}
+  - {fileID: 12800000, guid: 39fa0c0c6fe2d5645852ea7395208ca8, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

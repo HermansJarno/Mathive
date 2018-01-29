@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: b4ec759d256d8e3469fda7a287007a43
+timeCreated: 1517266201
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Hansief
+  fontNames:
+  - Hansief
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 4effb1bf1b80ce04c9c2da922a41f44d, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

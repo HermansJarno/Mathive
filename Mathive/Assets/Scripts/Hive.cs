@@ -10,7 +10,7 @@ public class Hive : MonoBehaviour {
   [SerializeField] private int x;
   [SerializeField] private int y;
   private float scaleAnimation = 1.2f;
-  private float speed = 2f;
+  private float animationSpeed = 2.5f;
 
   private Sprite normalSprite;
   private Sprite selectedSprite;
@@ -90,8 +90,13 @@ public class Hive : MonoBehaviour {
 
   public void SetSelectedImage() {
     selected = true;
-    imageHive.sprite = selectedSprite;
+    Invoke("DelaySelectedHive", 0.1f);
     InstantiateBackground();
+  }
+
+  void DelaySelectedHive()
+  {
+    imageHive.sprite = selectedSprite;
   }
 
   public void SetNormalImage()
@@ -170,6 +175,6 @@ public class Hive : MonoBehaviour {
     GameObject prefabAnimation = Instantiate(backgroundAnimation, transform.localPosition, backgroundAnimation.transform.rotation) as GameObject;
     prefabAnimation.GetComponent<RectTransform>().localScale = new Vector3(transform.localScale.x, transform.localScale.x, transform.localScale.x);
     prefabAnimation.transform.SetParent(GameObject.Find("BGGrid").transform.GetChild(x), false);
-    prefabAnimation.GetComponent<HiveAnimation>().BeginScale(scaleAnimation, speed, backgroundSprite);
+    prefabAnimation.GetComponent<HiveAnimation>().BeginScale(scaleAnimation, animationSpeed, backgroundSprite);
   }
 }

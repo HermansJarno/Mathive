@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: be59b97148cc1e046b3c5c78f827cb59
+timeCreated: 1517266201
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: FFF
+  fontNames:
+  - FFF
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 98d682a209803bb4c89b177541043117, type: 3}
+  - {fileID: 12800000, guid: 64fa478d699894f40b1c63913f528bc4, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
