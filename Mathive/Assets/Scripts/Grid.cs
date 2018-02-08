@@ -142,6 +142,7 @@ public class Grid : MonoBehaviour {
         }
       }
     }
+    Debug.Log(distanceBetweenHives);
     CalculateMidNumber();
   }
 
@@ -158,7 +159,7 @@ public class Grid : MonoBehaviour {
     {
       if (((lastHive.Y + 1 == nextHive.Y) || (lastHive.Y - 1 == nextHive.Y) || (lastHive.Y == nextHive.Y)))
       { 
-        if (Mathf.Round(Vector3.Distance(lastHive.transform.position, nextHive.transform.position)) == distanceBetweenHives)
+        if (Mathf.Ceil(Vector3.Distance(lastHive.transform.position, nextHive.transform.position)) == distanceBetweenHives)
         {
           hiveIsNear = true;
         }
@@ -216,11 +217,6 @@ public class Grid : MonoBehaviour {
           m_Grid[i, j] = FindNextHive(i, j, out hadToCreateNewIndex);
           m_Grid[i, j].gameObject.AddComponent<MoveHive>();
 
-          // Fill the highest index
-          //if (j == (m_rows - 1))
-          //{
-          //  m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + (yHiveOffset), m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
-          //}
           if (hadToCreateNewIndex)
           {
             m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + (yHiveOffset * (m_rows-j)), m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
@@ -234,7 +230,6 @@ public class Grid : MonoBehaviour {
         }
       }
     }
-    //CalculateMidNumber();
   }
 
   void RemoveFromGrid(Hive hive)
@@ -315,12 +310,8 @@ public class Grid : MonoBehaviour {
   void Swap(int currentI, int currentJ, int newI, int newJ, Hive[,] array)
   {
     int temp = array[currentI, currentJ].Value;
-    //array[currentI, currentJ].SetHive(array[newI, newJ].Value, newI, newJ);
     array[currentI, currentJ].OnValueChanged(array[newI, newJ].Value);
-    //array[currentI, currentJ].transform.SetParent(m_GridContainer.transform.GetChild(newI), false);
-    //array[newI, newJ].SetHive(temp, currentI, currentJ);
     array[newI, newJ].OnValueChanged(temp);
-    //array[newI, newJ].transform.SetParent(m_GridContainer.transform.GetChild(currentI), false);
   }
 
   public List<Hive> DeselectAllHivesOfSameValue(List<Hive> hives)
@@ -370,44 +361,6 @@ public class Grid : MonoBehaviour {
   {
     return Random.Range(1, 7);
   }
-
-  //void ResetHives(List<Hive> hives)
-  //{
-  //  ActivateHives();
-  //  for (int i = 0; i < hives.Count; i++)
-  //  {
-  //    if (i != hives.Count - 1)
-  //    {
-  //      int num = Random.Range(1, 3);
-  //      hives[i].OnValueChanged(num);
-  //      StartCoroutine(hives[i].transform.Scale(Vector3.zero, 0.2f,false));
-  //    }
-  //  }
-  //}
-
-  //void ActivateHives()
-  //{
-  //  List<GameObject> tempHives = new List<GameObject>();
-
-  //  for (int i = 0; i < m_colums; i++)
-  //  {
-  //    for (int j = 0; j < m_rows; j++)
-  //    {
-  //      if (m_Grid[i,j].Value == 0)
-  //      {
-  //        tempHives.Add(m_Grid[i, j].gameObject);
-  //      }
-  //    }
-  //  }
-
-  //  if (tempHives.Count > 0)
-  //  {
-  //    int rndIndex = Random.Range(0, tempHives.Count);
-  //    Hive hive = tempHives[rndIndex].GetComponent<Hive>();
-  //    hive.OnValueChanged(Random.Range(1, 3));
-  //    StartCoroutine(tempHives[rndIndex].transform.Scale(hivePrefab.transform.localScale, 0.2f,true));
-  //  }
-  //}
 }
 
 

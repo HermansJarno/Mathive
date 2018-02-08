@@ -41,6 +41,7 @@ public class Hive : MonoBehaviour {
 
   public Image imageHive;
   private bool selected = false;
+  private bool stillSelecting = false;
 
   private void Start()
   {
@@ -90,17 +91,24 @@ public class Hive : MonoBehaviour {
 
   public void SetSelectedImage() {
     selected = true;
+    stillSelecting = true;
     Invoke("DelaySelectedHive", 0.1f);
     InstantiateBackground();
   }
 
   void DelaySelectedHive()
   {
-    imageHive.sprite = selectedSprite;
+    if (stillSelecting)
+    {
+      imageHive.sprite = selectedSprite;
+      stillSelecting = false;
+    }
   }
 
   public void SetNormalImage()
   {
+    if (stillSelecting) stillSelecting = false;
+
     selected = false;
     imageHive.sprite = normalSprite;
   }
