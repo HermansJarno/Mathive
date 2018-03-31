@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
   [SerializeField] private int _level = 1;
-  [SerializeField] private float _timeLeft;
-  [SerializeField] private float _maxTime;
   [SerializeField] private int _score = 0;
   [SerializeField] private int _goalScore = 0;
   [SerializeField] private int _movesLeft = 30;
@@ -16,30 +15,34 @@ public class GameManager : MonoBehaviour {
   [SerializeField] private int _targetQuantityOfNumber = 20;
   [SerializeField] private int _currentQuantityOfNumber = 0;
 
+  Score scoreController;
   private Text _movesLeftText;
 
-  //public void SetLevel(int level, int maxTime, int goalScore)
-  //{
-  //  _level = level;
-  //  _maxTime = maxTime;
-  //  _timeLeft = maxTime;
-  //  _goalScore = goalScore;
-  //}
-
-  public void SetTargets(int targetNumber, int quantityNumber)
+  private void Start()
   {
-    TargetNumber = targetNumber;
-    TargetQuantity = quantityNumber;
+    scoreController = GameObject.Find("Scripts").GetComponent<Score>();
+    SetTargets();
+    //Scene scene = SceneManager.GetActiveScene();
+    //string levelNr = scene.name.Replace("Level ", "");
+    //_level = int.Parse(levelNr);
+
+    _level = GameObject.Find("LevelData").GetComponent<Level>()._Level;
   }
 
-  public void GetNextTarget(int numberOfHives)
+  public void SetLevel(int level, int maxTime, int goalScore, int movesLeft)
   {
-    TargetNumber += _targetNumber;
-    if (numberOfHives * 2 > _targetNumber) _targetQuantityOfNumber = Mathf.CeilToInt((numberOfHives * 2) / (_targetNumber / 1.5f));
-    if (_targetQuantityOfNumber == 1)
-    {
-      _targetQuantityOfNumber = 2;
-    }
+    _level = level;
+    _goalScore = goalScore;
+    _movesLeft = movesLeft;
+  }
+
+  public void SetTargets()
+  {
+    //TargetNumber = targetNumber;
+    //TargetQuantity = quantityNumber;
+
+    //make this dynamic later point
+    scoreController.SetTargets(10, 10, 10, 10, 10, 10);
   }
 
   public bool TargetIsCompleted()
@@ -49,30 +52,6 @@ public class GameManager : MonoBehaviour {
       return true;
     }
     return false;
-  }
-
-  bool IsLevelCompleted()
-  {
-    if (_score >= _goalScore)
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-
-  public float MaxTime
-  {
-    get { return _maxTime; }
-    set { _maxTime = value; }
-  }
-
-  public float TimeLeft
-  {
-    get { return _timeLeft; }
-    set { _timeLeft = value; }
   }
 
   public int Level
@@ -117,7 +96,7 @@ public class GameManager : MonoBehaviour {
       {
         _movesLeftText = GameObject.Find("MovesLeft").GetComponent<Text>();
       }
-      if (_movesLeft > 1)
+      if (_movesLeft >= 1)
       {
         _movesLeft = value;
       }

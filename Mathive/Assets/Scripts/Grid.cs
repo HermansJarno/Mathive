@@ -32,11 +32,11 @@ public class Grid : MonoBehaviour {
 
   private int m_colums, m_rows;
   private int midNumber;
-  int[] possibleValues = { 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192 };
-
+  Score m_score;
 
   // Use this for initialization
   void Start () {
+    m_score = GameObject.Find("Scripts").GetComponent<Score>();
     Score = GameObject.Find("Score").GetComponent<Text>();
     hivePrefab = Resources.Load("Hive") as GameObject;
     rowPrefab = Resources.Load("Row_") as GameObject;
@@ -170,6 +170,34 @@ public class Grid : MonoBehaviour {
 
   public void CalculateScore(List<Hive> hives)
   {
+    int numberOfBlue = 0, numberOfRed = 0, numberOfGreen = 0, numberOfYellow = 0, numberOfCyan = 0, numberOfMagenta = 0;
+
+    foreach (Hive hive in hives)
+    {
+      switch (hive.Value)
+      {
+        case 1:
+          numberOfRed++;
+          break;
+        case 2:
+          numberOfGreen++;
+          break;
+        case 3:
+          numberOfBlue++;
+          break;
+        case 4:
+          numberOfYellow++;
+          break;
+        case 5:
+          numberOfCyan++;
+          break;
+        case 6:
+          numberOfMagenta++;
+          break;
+      }
+    }
+    m_score.UpdateScores(numberOfBlue, numberOfYellow, numberOfCyan, numberOfGreen, numberOfRed, numberOfMagenta);
+
     int resultNumber = 0;
     int macht = hives.Count;
     int currentNumber = hives[0].Value;
@@ -185,14 +213,6 @@ public class Grid : MonoBehaviour {
     resultNumber *= macht;
     resultNumber += tempScore;
     Score.text = resultNumber.ToString();
-  }
-
-  public void UpdateGM(int quantity, int currentNumber)
-  {
-    if (GM.TargetIsCompleted())
-    {
-      GM.GetNextTarget(m_colums * m_rows);
-    }
   }
 
   void DestroyHives(List<Hive> hives)

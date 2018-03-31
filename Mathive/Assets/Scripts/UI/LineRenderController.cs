@@ -80,7 +80,6 @@ public class LineRenderController : MonoBehaviour {
         lineRenderer.SetPosition(i, points[i]);
       }
       lineRenderer.SetPosition(lineRenderer.positionCount - 1, touchPoint);
-      Debug.Log(touchPoint);
     }
     else
     {

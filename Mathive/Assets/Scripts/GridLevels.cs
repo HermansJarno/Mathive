@@ -81,7 +81,8 @@ public class GridLevels : MonoBehaviour {
   static int[] leaveIndex78Open = new int[2] { 7, 8 };
   #endregion
 
-  // 4 * 4
+
+  // Number of records must be the same as the number of rows
   static int[][] level1EmptyHives = new int[][]
   {
     LeaveIndex1Open,
@@ -89,8 +90,6 @@ public class GridLevels : MonoBehaviour {
     LeaveIndex4Open,
     LeaveIndex12Open
   };
-
-  // 4 * 5
   static int[][] level2EmptyHives = new int[][]
   {
     LeaveIndex5Open,
@@ -98,27 +97,76 @@ public class GridLevels : MonoBehaviour {
     LeaveIndex5Open,
     LeaveIndex12Open
   };
-
   static int[][] level3EmptyHives = new int[][]
   {
     LeaveIndex1Open,
     LeaveAllAsItis,
+    LeaveIndex3Open,
     LeaveIndex4Open,
-    LeaveIndex12Open
+    LeaveIndex2Open
   };
 
+  static int[][] level4EmptyHives = new int[][]
+{
+    LeaveIndex1Open,
+    LeaveAllAsItis,
+    LeaveAllAsItis,
+    LeaveIndex23Open,
+    LeaveAllAsItis,
+    LeaveIndex3Open
+};
+
+  static int[][] level5EmptyHives = new int[][]
+{
+    LeaveIndex1Open,
+    LeaveAllAsItis,
+    LeaveIndex4Open,
+    LeaveIndex12Open
+};
+
+  static int[][] level6EmptyHives = new int[][]
+{
+    LeaveIndex1Open,
+    LeaveAllAsItis,
+    LeaveIndex4Open,
+    LeaveIndex12Open
+};
+
+  static int[][] level7EmptyHives = new int[][]
+{
+    LeaveIndex1Open,
+    LeaveAllAsItis,
+    LeaveIndex4Open,
+    LeaveIndex12Open
+};
+
+  static int[][] level8EmptyHives = new int[][]
+{
+    LeaveIndex1Open,
+    LeaveAllAsItis,
+    LeaveIndex4Open,
+    LeaveIndex12Open
+};
+
+  static int[][] level9EmptyHives = new int[][]
+{
+    LeaveIndex1Open,
+    LeaveAllAsItis,
+    LeaveIndex4Open,
+    LeaveIndex12Open
+};
 
   int[][][] emptyHivesLevels = new int[][][]
   {
     level1EmptyHives,
     level2EmptyHives,
-    level2EmptyHives,
-    level2EmptyHives,
-    level2EmptyHives,
-    level2EmptyHives,
-    level2EmptyHives,
-    level2EmptyHives,
-    level2EmptyHives,
+    level3EmptyHives,
+    level4EmptyHives,
+    level5EmptyHives,
+    level6EmptyHives,
+    level7EmptyHives,
+    level8EmptyHives,
+    level9EmptyHives,
   };
 
   public int[][][] EmptyHivesLevels
