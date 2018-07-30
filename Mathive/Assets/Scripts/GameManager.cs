@@ -22,9 +22,6 @@ public class GameManager : MonoBehaviour {
   {
     scoreController = GameObject.Find("Scripts").GetComponent<Score>();
     SetTargets();
-    //Scene scene = SceneManager.GetActiveScene();
-    //string levelNr = scene.name.Replace("Level ", "");
-    //_level = int.Parse(levelNr);
 
     _level = GameObject.Find("LevelData").GetComponent<Level>()._Level;
   }

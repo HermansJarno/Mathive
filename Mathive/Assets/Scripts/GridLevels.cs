@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class GridLevels : MonoBehaviour {
 
-  static int[] level1 = new int[2] { 4, 4 };
-  static int[] level2 = new int[2] { 4, 5 };
-  static int[] level3 = new int[2] { 5, 4 };
-  static int[] level4 = new int[2] { 6, 3 };
+    // first index is the width, second the length
+  static int[] level1 = new int[2] { 8, 8 };
+  static int[] level2 = new int[2] { 8, 9 };
+  static int[] level3 = new int[2] { 9, 8 };
+  static int[] level4 = new int[2] { 10, 6 };
   static int[] level5 = new int[2] { 6, 4 };
   static int[] level6 = new int[2] { 4, 6 };
   static int[] level7 = new int[2] { 3, 7 };
@@ -79,31 +80,46 @@ public class GridLevels : MonoBehaviour {
   static int[] LeaveIndex67Open = new int[2] { 6, 7 };
   static int[] LeaveIndex68Open = new int[2] { 6, 8 };
   static int[] leaveIndex78Open = new int[2] { 7, 8 };
-  #endregion
+    #endregion
 
 
-  // Number of records must be the same as the number of rows
-  static int[][] level1EmptyHives = new int[][]
-  {
-    LeaveIndex1Open,
-    LeaveAllAsItis,
-    LeaveIndex4Open,
-    LeaveIndex12Open
-  };
-  static int[][] level2EmptyHives = new int[][]
-  {
-    LeaveIndex5Open,
-    LeaveIndex2Open,
-    LeaveIndex5Open,
-    LeaveIndex12Open
-  };
-  static int[][] level3EmptyHives = new int[][]
-  {
+    // Number of records must be the same as the number of rows
+    static int[][] level1EmptyHives = new int[][]
+    {
+        LeaveIndex1Open,
+        LeaveAllAsItis,
+        LeaveIndex4Open,
+        LeaveIndex12Open,
+        LeaveIndex37Open,
+        LeaveIndex6Open,
+        LeaveAllAsItis,
+        LeaveIndex47Open
+    };
+
+    static int[][] level2EmptyHives = new int[][]
+    {
+        LeaveIndex5Open,
+        LeaveIndex56Open,
+        LeaveIndex12Open,
+        LeaveIndex12Open,
+        LeaveIndex1Open,
+        LeaveIndex14Open,
+        LeaveIndex45Open,
+        LeaveIndex56Open
+    };
+
+    static int[][] level3EmptyHives = new int[][]
+    {
     LeaveIndex1Open,
     LeaveAllAsItis,
     LeaveIndex3Open,
     LeaveIndex4Open,
-    LeaveIndex2Open
+          LeaveIndex2Open,
+        LeaveIndex5Open,
+        LeaveIndex2Open,
+        LeaveIndex5Open,
+        LeaveIndex12Open,
+        LeaveIndex1Open
   };
 
   static int[][] level4EmptyHives = new int[][]
@@ -183,4 +199,18 @@ public class GridLevels : MonoBehaviour {
       return levels;
     }
   }
+
+    private static int[] Invert(int[] level, int[] indexesToStay){
+        int lengthOfGrid = level[1];
+        List<int> listIndexes = new List<int>();
+
+        for (int i = 0; i < lengthOfGrid; i++)
+        {
+            for (int j = 0; j < indexesToStay.Length; j++)
+            {
+                if (indexesToStay[j] != i) listIndexes.Add(i);
+            }         
+        }
+        return listIndexes.ToArray();
+    }
 }

@@ -3,18 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Hive : MonoBehaviour {
-
-  [SerializeField] int _value;
-
-  [SerializeField] private int x;
-  [SerializeField] private int y;
+public class Hive : Hexagon {
+    
   private float scaleAnimation = 1.2f;
   private float animationSpeed = 2.5f;
 
   private Sprite normalSprite;
   private Sprite selectedSprite;
   private Sprite backgroundSprite;
+
+    public Sprite blockSprite;
 
   public Sprite redSprite;
   public Sprite blueSprite;
@@ -49,32 +47,6 @@ public class Hive : MonoBehaviour {
   }
 
   // Implement that it holds image value
-
-  public int Value
-  {
-    get { return _value; }
-    set { _value = value; }
-  }
-
-  public int X
-  {
-    get { return x; }
-    set { x = value; }
-  }
-
-  public int Y
-  {
-    get { return y; }
-    set { y = value; }
-  }
-
-  public void OnPositionChanged(int newX, int newY)
-  {
-    x = newX;
-    y = newY;
-    gameObject.name = string.Format("{0}{1}", x+1, y+1);
-    transform.SetSiblingIndex(newY);
-  }
 
   public void SwitchState()
   {
@@ -115,9 +87,13 @@ public class Hive : MonoBehaviour {
 
   public void OnValueChanged(int newValue)
   {
-    _value = newValue;
-    switch (_value)
+        Value = newValue;
+        switch (Value)
     {
+            case -1:
+                normalSprite = blockSprite;
+				gameObject.tag = "Blockage";
+                break;
       case 1:
         normalSprite = redSprite;
         selectedSprite = redSelection;
@@ -152,7 +128,7 @@ public class Hive : MonoBehaviour {
         break;
     }
     SetNormalImage();
-    if (_value == 0)
+    if (Value == 0)
     {
       gameObject.GetComponent<Image>().enabled = false;
       //gameObject.transform.Find("Text").GetComponent<Text>().text = "";
@@ -182,7 +158,7 @@ public class Hive : MonoBehaviour {
   {
     GameObject prefabAnimation = Instantiate(backgroundAnimation, transform.localPosition, backgroundAnimation.transform.rotation) as GameObject;
     prefabAnimation.GetComponent<RectTransform>().localScale = new Vector3(transform.localScale.x, transform.localScale.x, transform.localScale.x);
-    prefabAnimation.transform.SetParent(GameObject.Find("BGGrid").transform.GetChild(x), false);
+        prefabAnimation.transform.SetParent(GameObject.Find("BGGrid").transform.GetChild(X), false);
     prefabAnimation.GetComponent<HiveAnimation>().BeginScale(scaleAnimation, animationSpeed, backgroundSprite);
   }
 }

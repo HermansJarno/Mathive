@@ -40,11 +40,9 @@ public class ScoreUI : MonoBehaviour {
   {
     RectTransform rtGrid = m_GridContainer.GetComponent<RectTransform>();
     float widthScreen = rtGrid.rect.width;
-    Debug.Log(widthScreen);
     float heightScreen = rtGrid.rect.height;
 
     float ratio = widthScreen / heightScreen;
-    Debug.Log(ratio);
     if (ratio < 0.55f)
     {
       // Calculate scale
