@@ -22,7 +22,7 @@ public class TouchController : MonoBehaviour
 	Hive lastHive;
 
 	// Get functions of grid
-	Grid grid;
+	GridController grid;
 
 	//Get functions of LR
 	LineRenderController LRController;
@@ -35,7 +35,7 @@ public class TouchController : MonoBehaviour
 
 	private void Start()
 	{
-		grid = GameObject.Find("Scripts").GetComponent<Grid>();
+		grid = GameObject.Find("Scripts").GetComponent<GridController>();
 		LRController = GameObject.Find("LineRenderer").GetComponent<LineRenderController>();
 		GM = GameObject.Find("Scripts").GetComponent<GameManager>();
 	}
@@ -133,14 +133,14 @@ public class TouchController : MonoBehaviour
 											{
 												selectedHives.Push(resultObj);
 												lineHives.Add(resultObj.transform.position);
-												specialSelectionHives = grid.ReturnAllHivesOfSameValue(resultHive.Value, listHives);
+												specialSelectionHives = grid.ReturnAllHivesOfSameValue(resultHive.GetHiveType, listHives);
 												specialSelectionActivated = true;
 											}
 										}
 									}
 								}
 							}
-							LRController.UpdatePoints(lineHives, Vector3.zero, listHives[0].Value);
+							LRController.UpdatePoints(lineHives, Vector3.zero, listHives[0].GetHiveType);
 						}
 					}
 					else
@@ -155,7 +155,7 @@ public class TouchController : MonoBehaviour
 					currentHive = resultObj.name;
 				}
 				if (!specialSelectionActivated && listHives.Count > 0)
-					LRController.UpdatePoints(lineHives, Input.GetTouch(0).position, listHives[0].Value);
+					LRController.UpdatePoints(lineHives, Input.GetTouch(0).position, listHives[0].GetHiveType);
 			}
 		}
 		// Deselect all hives on touch end.
@@ -195,7 +195,7 @@ public class TouchController : MonoBehaviour
 			selectedHives.Clear();
 			lineHives.Clear();
 			listHives.Clear();
-			LRController.UpdatePoints(lineHives, Vector3.zero, 0);
+			LRController.UpdatePoints(lineHives, Vector3.zero, HiveType.empty);
 		}
 	}
 }

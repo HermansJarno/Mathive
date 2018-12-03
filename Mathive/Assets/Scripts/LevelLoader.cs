@@ -12,7 +12,7 @@ public class LevelLoader : MonoBehaviour {
 
   public void LoadLevel(string levelName)
   {
-    if (levelName == "LevelScene")
+    if (levelName == "mainScene")
     {
       Destroy(GameObject.Find("LevelData"));
     }
