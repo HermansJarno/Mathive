@@ -180,6 +180,7 @@ public class Hive : Hexagon
 	{
 		GameObject prefabHive = Instantiate(Resources.Load("IceHive"), Vector3.zero, transform.rotation) as GameObject;
 		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+		prefabHive.tag = "Blockage";
 		prefabHive.transform.SetParent(gameObject.transform, false);
 		Hive tempHive = prefabHive.GetComponent<Hive>();
 		tempHive.setIceHiveImage();

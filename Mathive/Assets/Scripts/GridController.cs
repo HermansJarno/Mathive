@@ -203,71 +203,41 @@ public class GridController : MonoBehaviour
 			// left/right
 			int[] xOffsets = { -1, 1, 0, 0, -1, 1 };
 			// Up/Down
-			int[] yOffsets = { 0, 0, -1, 1, -1, -1 };
+			int[] yOffsets = { 0, 0, -1, 1, 1, 1};
 
-			if (currentHive.X + 1 < m_rows - 1)
+			for (int i = 0; i < xOffsets.Length; i++)
 			{
-				Debug.Log("lower than max Y");
-				if (m_Grid[currentHive.X + 1, currentHive.Y] != null)
+				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
+				&& (m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
 				{
-					if (m_Grid[currentHive.X + 1, currentHive.Y].GetHiveType == HiveType.blockage)
-					{
-						DestroyHive(m_Grid[currentHive.X + 1, currentHive.Y]);
-					}
-				}
-			}
-			else if (currentHive.X - 1 > 0)
-			{
-				if (m_Grid[currentHive.X - 1, currentHive.Y] != null)
-				{
-					if (m_Grid[currentHive.X - 1, currentHive.Y].Value == -1)
-					{
-						DestroyHive(m_Grid[currentHive.X - 1, currentHive.Y]);
-					}
-				}
-			}
-			else if (currentHive.Y + 1 < m_rows - 1)
-			{
-				if (m_Grid[currentHive.X, currentHive.Y + 1] != null)
-				{
-					if (m_Grid[currentHive.X, currentHive.Y + 1].Value == -1)
-					{
-						DestroyHive(m_Grid[currentHive.X, currentHive.Y + 1]);
-					}
-				}
-			}
-			else if (currentHive.Y - 1 > 0)
-			{
-				if (m_Grid[currentHive.X, currentHive.Y - 1] != null)
-				{
-					if (m_Grid[currentHive.X, currentHive.Y - 1].Value == -1)
-					{
-						DestroyHive(m_Grid[currentHive.X, currentHive.Y - 1]);
-					}
+					DestroyHive(m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
 				}
 			}
 		}
 		else
 		{
-			/*
 			// Left/right
 			int[] xOffsets = { -1, 1, 0, 0, -1, 1 };
 			// Up/Down
-			int[] yOffsets = { 0, 0, -1, 1, 1, 1 };
+			int[] yOffsets = { 0, 0, -1, 1, -1, -1 };
 			for (int i = 0; i < xOffsets.Length; i++)
 			{
-				if ((currentHive.X + xOffsets[i] < m_rows - 1 || currentHive.X + xOffsets[i] > 0) && (currentHive.Y + yOffsets[i] < m_colums - 1 || currentHive.Y + yOffsets[i] > 0))
+				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
+				&& (m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
 				{
-					if (m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null)
-					{
-						if (m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].Value == -1)
-						{
-							DestroyHive(m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
-						}
-					}
+					DestroyHive(m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
 				}
-			}*/
+			}
 		}
+	}
+
+	private bool IndexAroundHiveIsInTheGrid(int xValue, int yValue){
+		bool isInTheGrid = false;
+		if ((m_Grid.GetLength(0) > xValue) && (m_Grid.GetLength(1) > yValue))
+		{
+			isInTheGrid |= ((0 < xValue) && (0 < yValue));
+		}
+		return isInTheGrid;
 	}
 
 	public void CalculateScore(List<Hive> hives)
