@@ -32,6 +32,7 @@ public class GridController : MonoBehaviour
 	[SerializeField] float m_scaleY;
 	float m_midScale;
 	[SerializeField] float extraScale = 0.1f;
+	float delayLerp = 0.1f;
 
 	private int m_colums, m_rows;
 	private int midNumber;
@@ -39,6 +40,19 @@ public class GridController : MonoBehaviour
 
 	private int blockageLayer = -1;
 	private int emptyHiveLayer = 0;
+
+	private bool inputAvailable = true;
+	public bool InputAvailable
+	{
+		get
+		{
+			return inputAvailable;
+		}
+		set
+		{
+			inputAvailable = value;
+		}
+	}
 
 	// Use this for initialization
 	void Start()
@@ -202,7 +216,6 @@ public class GridController : MonoBehaviour
 
 	public void DestroyNearBlockages(Hive currentHive)
 	{
-		Debug.Log("delete blockages");
 		// even number search indexes below
 		if ((currentHive.X % 2) == 0)
 		{
@@ -307,32 +320,39 @@ public class GridController : MonoBehaviour
 		RemoveFromGrid(hive);
 	}
 
-	public void UpdateGrid(List<Hive> hives)
+public void UpdateGrid(List<Hive> hives)
 	{
+		inputAvailable = false;
 		DestroyHives(hives);
+		int highestNumberOfMoves = 0;
 		for (int i = 0; i < m_colums; i++)
 		{
+			int numberOfNewIndex = 0;
+			float numberOfMoves = -1;
 			for (int j = 0; j < m_rows; j++)
 			{
 				if (m_Grid[i, j] == null)
 				{
 					int blockageLevel = GetIndexOfBlockage(i, j);
-					Debug.Log(blockageLevel);
+					float numberOfIndexesHigher = 0;
 					if (blockageLevel < j || blockageLevel == -1)
 					{
+						// blockage is beneath index
 						bool hadToCreateNewIndex = false;
-						m_Grid[i, j] = FindNextHive(i, j, out hadToCreateNewIndex);
+						m_Grid[i, j] = FindNextHive(i, j, out hadToCreateNewIndex, ref numberOfIndexesHigher);
 						if (m_Grid[i, j] != null)
 						{
 							m_Grid[i, j].gameObject.AddComponent<MoveHive>();
 
 							if (hadToCreateNewIndex)
 							{
-								m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + (yHiveOffset * (m_rows - j)), m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f);
+								numberOfNewIndex++;
+								m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + (yHiveOffset * (m_rows - j)), m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f, (delayLerp * (numberOfMoves + numberOfNewIndex)), numberOfIndexesHigher);
 							}
 							else
 							{
-								m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed);
+								numberOfMoves++;
+								m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed, (delayLerp * numberOfMoves), numberOfIndexesHigher);
 							}
 
 							m_Grid[i, j].OnPositionChanged(i, j);
@@ -340,17 +360,29 @@ public class GridController : MonoBehaviour
 					}
 					else
 					{
-						m_Grid[i, j] = FindNextHive(i, j, blockageLevel);
+						//blockage is above index
+						m_Grid[i, j] = FindNextHive(i, j, blockageLevel, ref numberOfIndexesHigher);
 						if (m_Grid[i, j] != null)
 						{
+							numberOfMoves++;
 							m_Grid[i, j].gameObject.AddComponent<MoveHive>();
-							m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed);
+							m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed, (delayLerp * numberOfMoves), numberOfIndexesHigher);
 							m_Grid[i, j].OnPositionChanged(i, j);
 						}
 					}
 				}
+				if (highestNumberOfMoves < (int)numberOfMoves)
+				{
+					highestNumberOfMoves = (int)numberOfMoves;
+				}
 			}
 		}
+		Invoke("SetInputActive", 0.1f * highestNumberOfMoves);
+	}
+
+	void SetInputActive()
+	{
+		inputAvailable = true;
 	}
 
 	void RemoveFromGrid(Hive hive)
@@ -367,7 +399,7 @@ public class GridController : MonoBehaviour
 		}
 	}
 
-	Hive FindNextHive(int i, int j, out bool newHive)
+	Hive FindNextHive(int i, int j, out bool newHive, ref float numberOfIndexesHigher)
 	{
 		newHive = false;
 		// MAX INDEX
@@ -379,31 +411,7 @@ public class GridController : MonoBehaviour
 		else
 		{
 			j++;
-			// check the index above the last one, if its not empty, take it as the next block to fall
-			if (m_Grid[i, j] != null && m_Grid[i, j].Value != emptyHiveLayer && m_Grid[i, j].Value != blockageLayer)
-			{
-				Hive tempHive = m_Grid[i, j];
-				m_Grid[i, j] = null;
-				return tempHive;
-			}
-			else
-			{
-				// if no next hive was found, search for the next
-				return FindNextHive(i, j, out newHive);
-			}
-		}
-	}
-
-	Hive FindNextHive(int i, int j, int blockageIndex)
-	{
-		// MAX INDEX
-		if (j == blockageIndex - 1)
-		{
-			return null;
-		}
-		else
-		{
-			j++;
+			numberOfIndexesHigher++;
 			// check the index above the last one, if its not empty, take it as the next block to fall
 			if (m_Grid[i, j] != null && m_Grid[i, j].Value != emptyHiveLayer)
 			{
@@ -414,7 +422,34 @@ public class GridController : MonoBehaviour
 			else
 			{
 				// if no next hive was found, search for the next
-				return FindNextHive(i, j, blockageIndex);
+				return FindNextHive(i, j, out newHive, ref numberOfIndexesHigher);
+			}
+		}
+	}
+
+	Hive FindNextHive(int i, int j, int blockageIndex, ref float numberOfIndexesHigher)
+	{
+		// MAX INDEX
+		if (j == blockageIndex - 1)
+		{
+			// search side hive, if found, return bool made side movement
+			return null;
+		}
+		else
+		{
+			j++;
+			numberOfIndexesHigher++;
+			// check the index above the last one, if its not empty, take it as the next block to fall
+			if (m_Grid[i, j] != null && m_Grid[i, j].Value != emptyHiveLayer)
+			{
+				Hive tempHive = m_Grid[i, j];
+				m_Grid[i, j] = null;
+				return tempHive;
+			}
+			else
+			{
+				// if no next hive was found, search for the next
+				return FindNextHive(i, j, blockageIndex, ref numberOfIndexesHigher);
 			}
 		}
 	}
