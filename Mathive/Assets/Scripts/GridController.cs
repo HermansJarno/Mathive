@@ -7,9 +7,9 @@ using UnityEngine.UI;
 public class GridController : MonoBehaviour
 {
 	public GameObject m_GridContainerBackgrounds;
-	public GameObject m_GridContainerFront;
+	public GameObject m_GridContainerBorder;
 	public GameObject m_GridContainer;
-	[SerializeField] float m_refWidth = 800f;
+	[SerializeField] float m_refWidth = 600f;
 	[SerializeField] float m_refHeight = 1280;
 	[SerializeField] float xHiveOffset = 85;
 	[SerializeField] float yRowOffset = 50;
@@ -23,6 +23,7 @@ public class GridController : MonoBehaviour
 	private Text Score;
 
 	private GameObject hivePrefab;
+	private GameObject borderPrefab;
 	private GameObject rowPrefab;
 	private GameManager GM;
 
@@ -45,6 +46,7 @@ public class GridController : MonoBehaviour
 		m_score = GameObject.Find("Scripts").GetComponent<Score>();
 		Score = GameObject.Find("Score").GetComponent<Text>();
 		hivePrefab = Resources.Load("Hive") as GameObject;
+		borderPrefab = Resources.Load("HiveBorder") as GameObject;
 		rowPrefab = Resources.Load("Row_") as GameObject;
 		GM = GameObject.Find("Scripts").GetComponent<GameManager>();
 
@@ -64,7 +66,10 @@ public class GridController : MonoBehaviour
 		m_scaleX = (widthScreen / m_refWidth) * extraScale;
 		m_scaleY = (heightScreen / m_refHeight) * extraScale;
 
-		m_scaleX = (m_scaleX + m_scaleY) / 2;
+		//m_scaleX = (m_scaleX + m_scaleY) / 2.5f;
+		if(m_scaleX > m_scaleY){
+			m_scaleX = m_scaleY;
+		}
 
 		yRowOffset *= m_scaleX;
 
@@ -87,13 +92,13 @@ public class GridController : MonoBehaviour
 			{
 				InstantiateRows(i + 1, yRowOffset, m_GridContainer);
 				InstantiateRows(i + 1, yRowOffset, m_GridContainerBackgrounds);
-				InstantiateRows(i + 1, yRowOffset, m_GridContainerFront);
+				InstantiateRows(i + 1, yRowOffset, m_GridContainerBorder);
 			}
 			else
 			{
 				InstantiateRows(i + 1, 0, m_GridContainer);
 				InstantiateRows(i + 1, 0, m_GridContainerBackgrounds);
-				InstantiateRows(i + 1, 0, m_GridContainerFront);
+				InstantiateRows(i + 1, 0, m_GridContainerBorder);
 			}
 		}
 
@@ -133,6 +138,7 @@ public class GridController : MonoBehaviour
 			{
 				if (m_Grid[i, j] == null)
 				{
+					InstantiateBorder(i,j);
 					int num = UnityEngine.Random.Range(1, 7);
 					m_Grid[i, j] = InstantiateHive(i, j);
 					m_Grid[i, j].SetHive(num, i, j);
@@ -235,7 +241,7 @@ public class GridController : MonoBehaviour
 		bool isInTheGrid = false;
 		if ((m_Grid.GetLength(0) > xValue) && (m_Grid.GetLength(1) > yValue))
 		{
-			isInTheGrid |= ((0 < xValue) && (0 < yValue));
+			isInTheGrid |= ((0 <= xValue) && (0 <= yValue));
 		}
 		return isInTheGrid;
 	}
@@ -505,6 +511,13 @@ public class GridController : MonoBehaviour
 		tempHive.OnPositionChanged(x, y);
 		tempHive.OnValueChanged(getRandomHiveType());
 		return tempHive;
+	}
+
+	void InstantiateBorder(int x, int y){
+		float scale = 1.3f;
+		GameObject prefabHive = Instantiate(borderPrefab, m_HivePositions[x, y], hivePrefab.transform.rotation) as GameObject;
+		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(m_scaleX * scale, m_scaleX * scale, m_scaleX * scale);
+		prefabHive.transform.SetParent(m_GridContainerBorder.transform.GetChild(x), false);
 	}
 
 	void CalculateMidNumber()

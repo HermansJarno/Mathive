@@ -128,6 +128,7 @@ public class TouchController : MonoBehaviour
 										}
 										else
 										{
+											/* 
 											// Make a full round, reach first hive again
 											if (resultHive == listHives[0])
 											{
@@ -135,7 +136,7 @@ public class TouchController : MonoBehaviour
 												lineHives.Add(resultObj.transform.position);
 												specialSelectionHives = grid.ReturnAllHivesOfSameValue(resultHive.GetHiveType, listHives);
 												specialSelectionActivated = true;
-											}
+											}*/
 										}
 									}
 								}
