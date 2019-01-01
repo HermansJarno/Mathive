@@ -5,81 +5,107 @@ using UnityEngine;
 
 public class GridInitializer : MonoBehaviour {
 
-	/*
-	private GameObject rowPrefab;
+	GridManager gridManager;
+	GameManager gameManager;
 
-	public void Awake()
+	public void InitializeGrid()
 	{
-		rowPrefab = Resources.Load("Row_") as GameObject;
-	}
+		gridManager = GameObject.Find("GridManager").GetComponent<GridManager>();
+		gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
-	public void InitializeGrid(int colums, int rows)
-	{
-		Debug.Log("number of columns: " +  colums + ", Number of rows: " + rows);
+		gridManager.Columns = gridManager.GridLevels.Levels[gameManager.Level - 1][0];
+		gridManager.Rows = gridManager.GridLevels.Levels[gameManager.Level - 1][1];
 
 		// Get current width and height of Screen
-		RectTransform rtGrid = m_GridContainer.GetComponent<RectTransform>();
+		RectTransform rtGrid = gridManager.m_GridContainer.GetComponent<RectTransform>();
 		float widthScreen = rtGrid.rect.width;
 		float heightScreen = rtGrid.rect.height;
 
 		// Calculate scale
-		ScaleX = (widthScreen / m_refWidth) * extraScale;
-		ScaleY = (heightScreen / m_refHeight) * extraScale;
+		gridManager.ScaleX = (widthScreen / gridManager.RefWidth) * gridManager.ExtraScale;
+		gridManager.ScaleY = (heightScreen / gridManager.RefHeight) * gridManager.ExtraScale;
 
-		ScaleX = (ScaleX + ScaleY) / 2;
+		if(gridManager.ScaleX > gridManager.ScaleY){
+			gridManager.ScaleX = gridManager.ScaleY;
+		}
 
-		yRowOffset *= ScaleX;
+		gridManager.YRowOffset *= gridManager.ScaleX;
 
-		xHiveOffset *= ScaleX;
-		YHiveOffset *= ScaleX;
-		float width = xHiveOffset * colums;
-		float height = YHiveOffset * rows;
+		gridManager.XHiveOffset *= gridManager.ScaleX;
+		gridManager.YHiveOffset *= gridManager.ScaleX;
+		float width = gridManager.XHiveOffset * gridManager.Columns;
+		float height = gridManager.YHiveOffset * gridManager.Rows;
 
 		float xPosition = -(width / 2);
 		float yPosition = -(height / 2);
 
-		Grid = new Hive[colums, rows];
-		HivePositions = new Vector3[colums, rows];
+		gridManager.Grid = new Hive[gridManager.Columns, gridManager.Rows];
+		gridManager.HivePositions = new Vector3[gridManager.Columns, gridManager.Rows];
 
-
-		for (int i = 0; i < colums; i++)
+		for (int i = 0; i < gridManager.Columns; i++)
 		{
 			if ((i % 2) == 0)
 			{
-				InstantiateRows(i + 1, yRowOffset, m_GridContainer);
-				InstantiateRows(i + 1, yRowOffset, m_GridContainerBackgrounds);
+				InstantiateRows(i + 1, gridManager.YRowOffset, gridManager.m_GridContainer);
+				InstantiateRows(i + 1, gridManager.YRowOffset, gridManager.m_GridContainerBackgrounds);
+				InstantiateRows(i + 1, gridManager.YRowOffset, gridManager.m_GridContainerBorder);
 			}
 			else
 			{
-				InstantiateRows(i + 1, 0, m_GridContainer);
-				InstantiateRows(i + 1, 0, m_GridContainerBackgrounds);
+				InstantiateRows(i + 1, 0, gridManager.m_GridContainer);
+				InstantiateRows(i + 1, 0, gridManager.m_GridContainerBackgrounds);
+				InstantiateRows(i + 1, 0, gridManager.m_GridContainerBorder);
 			}
 		}
 
 		// Create The Positions
-		for (int i = 0; i < colums; i++)
+		for (int i = 0; i < gridManager.Columns; i++)
 		{
-			for (int j = 0; j < rows; j++)
+			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				HivePositions[i, j] = new Vector3(xPosition + (xHiveOffset / 2), yPosition, 0);
-				yPosition += YHiveOffset;
+				gridManager.HivePositions[i, j] = new Vector3(xPosition + (gridManager.XHiveOffset / 2), yPosition, 0);
+				yPosition += gridManager.YHiveOffset;
 			}
-			xPosition += xHiveOffset;
+			xPosition += gridManager.XHiveOffset;
 			yPosition = -(height / 2);
 		}
 
 		//Fill the empty Hives
-		for (int i = 0; i < colums; i++)
+		for (int i = 0; i < gridManager.Columns; i++)
 		{
-			for (int j = 0; j < rows; j++)
+			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				for (int r = 0; r < GridLevels.EmptyHivesLevels[GetManager.Level - 1][i].Length; r++)
+				for (int r = 0; r < gridManager.GridLevels.EmptyHivesLevels[gameManager.Level - 1][i].Length; r++)
 				{
 					//first the level, then the row, then check for index and validate them with J
-					if (GridLevels.EmptyHivesLevels[GetManager.Level - 1][i][r] == (j + 1))
+					if (gridManager.GridLevels.EmptyHivesLevels[gameManager.Level - 1][i][r] == (j + 1))
 					{
-						Grid[i, j] = InstantiateHive(i, j);
-						Grid[i, j].SetHive(0, i, j);
+						gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
+						gridManager.Grid[i, j].SetHive(0, i, j);
+					}
+				}
+			}
+		}
+
+		// Generate the hives
+		for (int i = 0; i < gridManager.Columns; i++)
+		{
+			for (int j = 0; j < gridManager.Rows; j++)
+			{
+				if (gridManager.Grid[i, j] == null)
+				{
+					InstantiateBorder(i,j);
+					int num = UnityEngine.Random.Range(1, 7);
+					gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
+					gridManager.Grid[i, j].SetHive(num, i, j);
+
+					if (j - 1 > 0)
+					{
+						float dist = Vector3.Distance(gridManager.Grid[i, j].transform.position, gridManager.Grid[i, j - 1].transform.position);
+						if (gridManager.DistanceBetweenHives > dist)
+						{
+							gridManager.DistanceBetweenHives = (float)Math.Round((double)dist, 1);
+						}
 					}
 				}
 			}
@@ -87,54 +113,38 @@ public class GridInitializer : MonoBehaviour {
 
 		//Blockage
 		//Columns
-		for (int i = 0; i < colums; i++)
+		for (int i = 0; i < gridManager.Columns; i++)
 		{
 			//rows
-			for (int j = 0; j < rows; j++)
+			for (int j = 0; j < gridManager.Rows; j++)
 			{
 				if (j == 4)
 				{
-					Grid[i, j] = InstantiateHive(i, j);
-					Grid[i, j].SetHive(-1, i, j);
-				}
-			}
-		}
-
-		// Generate the hives
-		for (int i = 0; i < colums; i++)
-		{
-			for (int j = 0; j < rows; j++)
-			{
-				if (Grid[i, j] == null)
-				{
-					int num = UnityEngine.Random.Range(1, 7);
-					Grid[i, j] = InstantiateHive(i, j);
-					Grid[i, j].SetHive(num, i, j);
-
-					if (j - 1 > 0)
+					if (gridManager.Grid[i, j] != null)
 					{
-						float dist = Vector3.Distance(Grid[i, j].transform.position, Grid[i, j - 1].transform.position);
-						if (DistanceBetweenHives > dist)
+						if (gridManager.Grid[i, j].GetHiveType != HiveType.empty)
 						{
-							DistanceBetweenHives = (float)Math.Round((double)dist, 1);
+							gridManager.Grid[i, j].SetHive(-1, i, j);
 						}
 					}
-					//Debug.Log(m_Grid[i, j].Value);
 				}
 			}
 		}
+
+		Destroy(gameObject.GetComponent<GridInitializer>());
 	}
 
-	void InstantiateRows(int number, float offsetY, GameObject grid)
+	void InstantiateRows(int number, float offsetY, GameObject gridContainer)
 	{
-		GameObject row = Instantiate(rowPrefab, new Vector3(0, 0 + offsetY, 0), rowPrefab.transform.rotation) as GameObject;
-		row.transform.SetParent(grid.transform, false);
+		GameObject row = Instantiate(gridManager.RowPrefab, new Vector3(0, 0 + offsetY, 0), gridManager.RowPrefab.transform.rotation) as GameObject;
+		row.transform.SetParent(gridContainer.transform, false);
 		row.name = string.Format("{0}{1}", "Row_", number);
 	}
 
-	void SetIndexToZero(int x, int y)
-	{
-		Grid[x, y].SetHive(0, x, y);
-	}*/
-
+	void InstantiateBorder(int x, int y){
+		float scale = 1.3f;
+		GameObject prefabHive = Instantiate(gridManager.BorderPrefab, gridManager.HivePositions[x, y], gridManager.HivePrefab.transform.rotation) as GameObject;
+		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(gridManager.ScaleX * scale, gridManager.ScaleX * scale, gridManager.ScaleX * scale);
+		prefabHive.transform.SetParent(gridManager.m_GridContainerBorder.transform.GetChild(x), false);
+	}
 }

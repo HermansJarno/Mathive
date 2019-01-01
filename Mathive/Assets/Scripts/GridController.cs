@@ -6,40 +6,12 @@ using UnityEngine.UI;
 
 public class GridController : MonoBehaviour
 {
-	public GameObject m_GridContainerBackgrounds;
-	public GameObject m_GridContainerBorder;
-	public GameObject m_GridContainer;
-	[SerializeField] float m_refWidth = 600f;
-	[SerializeField] float m_refHeight = 1280;
-	[SerializeField] float xHiveOffset = 85;
-	[SerializeField] float yRowOffset = 50;
-	[SerializeField] float yHiveOffset = 100;
-	[SerializeField] float lerpSpeed = 4;
-	[SerializeField] float offsetTop = 200;
+	private GridManager gridManager;
+	private GameManager gameManager;
 
-	[SerializeField] private Vector3[,] m_HivePositions;
-	[SerializeField] private Hive[,] m_Grid;
-	private GridLevels m_GridLevels = new GridLevels();
 	private Text Score;
 
-	private GameObject hivePrefab;
-	private GameObject borderPrefab;
-	private GameObject rowPrefab;
-	private GameManager GM;
-
-	float distanceBetweenHives = Mathf.Infinity;
-	[SerializeField] float m_scaleX;
-	[SerializeField] float m_scaleY;
-	float m_midScale;
-	[SerializeField] float extraScale = 0.1f;
-	float delayLerp = 0.1f;
-
-	private int m_colums, m_rows;
-	private int midNumber;
 	Score m_score;
-
-	private int blockageLayer = -1;
-	private int emptyHiveLayer = 0;
 
 	private bool inputAvailable = true;
 	public bool InputAvailable
@@ -57,143 +29,10 @@ public class GridController : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
-		m_score = GameObject.Find("Scripts").GetComponent<Score>();
+		gridManager = GameObject.Find("GridManager").GetComponent<GridManager>();
+		gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 		Score = GameObject.Find("Score").GetComponent<Text>();
-		hivePrefab = Resources.Load("Hive") as GameObject;
-		borderPrefab = Resources.Load("HiveBorder") as GameObject;
-		rowPrefab = Resources.Load("Row_") as GameObject;
-		GM = GameObject.Find("Scripts").GetComponent<GameManager>();
-
-		Debug.Log("number of columns: " + m_GridLevels.Levels[GM.Level - 1][1] + ", Number of rows: " + m_GridLevels.Levels[GM.Level - 1][0]);
-
-		InitializeGrid(m_GridLevels.Levels[GM.Level - 1][0], m_GridLevels.Levels[GM.Level - 1][1]);
-	}
-
-	void InitializeGrid(int colums, int rows)
-	{
-		// Get current width and height of Screen
-		RectTransform rtGrid = m_GridContainer.GetComponent<RectTransform>();
-		float widthScreen = rtGrid.rect.width;
-		float heightScreen = rtGrid.rect.height;
-
-		// Calculate scale
-		m_scaleX = (widthScreen / m_refWidth) * extraScale;
-		m_scaleY = (heightScreen / m_refHeight) * extraScale;
-
-		//m_scaleX = (m_scaleX + m_scaleY) / 2.5f;
-		if(m_scaleX > m_scaleY){
-			m_scaleX = m_scaleY;
-		}
-
-		yRowOffset *= m_scaleX;
-
-		xHiveOffset *= m_scaleX;
-		yHiveOffset *= m_scaleX;
-		float width = xHiveOffset * colums;
-		float height = yHiveOffset * rows;
-
-		float xPosition = -(width / 2);
-		float yPosition = -(height / 2);
-
-		m_Grid = new Hive[colums, rows];
-		m_HivePositions = new Vector3[colums, rows];
-		m_colums = colums;
-		m_rows = rows;
-
-		for (int i = 0; i < colums; i++)
-		{
-			if ((i % 2) == 0)
-			{
-				InstantiateRows(i + 1, yRowOffset, m_GridContainer);
-				InstantiateRows(i + 1, yRowOffset, m_GridContainerBackgrounds);
-				InstantiateRows(i + 1, yRowOffset, m_GridContainerBorder);
-			}
-			else
-			{
-				InstantiateRows(i + 1, 0, m_GridContainer);
-				InstantiateRows(i + 1, 0, m_GridContainerBackgrounds);
-				InstantiateRows(i + 1, 0, m_GridContainerBorder);
-			}
-		}
-
-		// Create The Positions
-		for (int i = 0; i < colums; i++)
-		{
-			for (int j = 0; j < rows; j++)
-			{
-				m_HivePositions[i, j] = new Vector3(xPosition + (xHiveOffset / 2), yPosition, 0);
-				yPosition += yHiveOffset;
-			}
-			xPosition += xHiveOffset;
-			yPosition = -(height / 2);
-		}
-
-		//Fill the empty Hives
-		for (int i = 0; i < colums; i++)
-		{
-			for (int j = 0; j < rows; j++)
-			{
-				for (int r = 0; r < m_GridLevels.EmptyHivesLevels[GM.Level - 1][i].Length; r++)
-				{
-					//first the level, then the row, then check for index and validate them with J
-					if (m_GridLevels.EmptyHivesLevels[GM.Level - 1][i][r] == (j + 1))
-					{
-						m_Grid[i, j] = InstantiateHive(i, j);
-						m_Grid[i, j].SetHive(0, i, j);
-					}
-				}
-			}
-		}
-
-		// Generate the hives
-		for (int i = 0; i < colums; i++)
-		{
-			for (int j = 0; j < rows; j++)
-			{
-				if (m_Grid[i, j] == null)
-				{
-					InstantiateBorder(i,j);
-					int num = UnityEngine.Random.Range(1, 7);
-					m_Grid[i, j] = InstantiateHive(i, j);
-					m_Grid[i, j].SetHive(num, i, j);
-
-					if (j - 1 > 0)
-					{
-						float dist = Vector3.Distance(m_Grid[i, j].transform.position, m_Grid[i, j - 1].transform.position);
-						if (distanceBetweenHives > dist)
-						{
-							distanceBetweenHives = (float)Math.Round((double)dist, 1);
-						}
-					}
-				}
-			}
-		}
-
-		//Blockage
-		//Columns
-		for (int i = 0; i < colums; i++)
-		{
-			//rows
-			for (int j = 0; j < rows; j++)
-			{
-				if (j == 4)
-				{
-					if (m_Grid[i, j] != null)
-					{
-						if (m_Grid[i, j].GetHiveType != HiveType.empty)
-						{
-							m_Grid[i, j].SetHive(-1, i, j);
-						}
-					}
-				}
-			}
-		}
-		CalculateMidNumber();
-	}
-
-	void SetIndexToZero(int x, int y)
-	{
-		m_Grid[x, y].SetHive(0, x, y);
+		m_score = GameObject.Find("Scripts").GetComponent<Score>();
 	}
 
 	public bool IsHiveNear(Hive lastHive, Hive nextHive)
@@ -205,7 +44,7 @@ public class GridController : MonoBehaviour
 			if (((lastHive.Y + 1 == nextHive.Y) || (lastHive.Y - 1 == nextHive.Y) || (lastHive.Y == nextHive.Y)))
 			{
 				float result = (float)Math.Round((double)Vector3.Distance(lastHive.transform.position, nextHive.transform.position), 1);
-				if (result == distanceBetweenHives)
+				if (result == gridManager.DistanceBetweenHives)
 				{
 					hiveIsNear = true;
 				}
@@ -227,9 +66,9 @@ public class GridController : MonoBehaviour
 			for (int i = 0; i < xOffsets.Length; i++)
 			{
 				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
-				&& (m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
+				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
 				{
-					DestroyHive(m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
+					DestroyHive(gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
 				}
 			}
 		}
@@ -242,9 +81,9 @@ public class GridController : MonoBehaviour
 			for (int i = 0; i < xOffsets.Length; i++)
 			{
 				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
-				&& (m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
+				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
 				{
-					DestroyHive(m_Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
+					DestroyHive(gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
 				}
 			}
 		}
@@ -252,7 +91,7 @@ public class GridController : MonoBehaviour
 
 	private bool IndexAroundHiveIsInTheGrid(int xValue, int yValue){
 		bool isInTheGrid = false;
-		if ((m_Grid.GetLength(0) > xValue) && (m_Grid.GetLength(1) > yValue))
+		if ((gridManager.Grid.GetLength(0) > xValue) && (gridManager.Grid.GetLength(1) > yValue))
 		{
 			isInTheGrid |= ((0 <= xValue) && (0 <= yValue));
 		}
@@ -265,24 +104,24 @@ public class GridController : MonoBehaviour
 
 		foreach (Hive hive in hives)
 		{
-			switch (hive.Value)
+			switch (hive.GetHiveType)
 			{
-				case 1:
+				case HiveType.red:
 					numberOfRed++;
 					break;
-				case 2:
+				case HiveType.green:
 					numberOfGreen++;
 					break;
-				case 3:
+				case HiveType.blue:
 					numberOfBlue++;
 					break;
-				case 4:
+				case HiveType.yellow:
 					numberOfYellow++;
 					break;
-				case 5:
+				case HiveType.cyan:
 					numberOfCyan++;
 					break;
-				case 6:
+				case HiveType.magenta:
 					numberOfMagenta++;
 					break;
 			}
@@ -320,18 +159,18 @@ public class GridController : MonoBehaviour
 		RemoveFromGrid(hive);
 	}
 
-public void UpdateGrid(List<Hive> hives)
+	public void UpdateGrid(List<Hive> hives)
 	{
 		inputAvailable = false;
 		DestroyHives(hives);
 		int highestNumberOfMoves = 0;
-		for (int i = 0; i < m_colums; i++)
+		for (int i = 0; i < gridManager.Columns; i++)
 		{
 			int numberOfNewIndex = 0;
 			float numberOfMoves = -1;
-			for (int j = 0; j < m_rows; j++)
+			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				if (m_Grid[i, j] == null)
+				if (gridManager.Grid[i, j] == null)
 				{
 					int blockageLevel = GetIndexOfBlockage(i, j);
 					float numberOfIndexesHigher = 0;
@@ -339,35 +178,35 @@ public void UpdateGrid(List<Hive> hives)
 					{
 						// blockage is beneath index
 						bool hadToCreateNewIndex = false;
-						m_Grid[i, j] = FindNextHive(i, j, out hadToCreateNewIndex, ref numberOfIndexesHigher);
-						if (m_Grid[i, j] != null)
+						gridManager.Grid[i, j] = FindNextHive(i, j, out hadToCreateNewIndex, ref numberOfIndexesHigher);
+						if (gridManager.Grid[i, j] != null)
 						{
-							m_Grid[i, j].gameObject.AddComponent<MoveHive>();
+							gridManager.Grid[i, j].gameObject.AddComponent<MoveHive>();
 
 							if (hadToCreateNewIndex)
 							{
 								numberOfNewIndex++;
-								m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(m_Grid[i, j].transform.localPosition.x, m_Grid[i, j].transform.localPosition.y + (yHiveOffset * (m_rows - j)), m_Grid[i, j].transform.localPosition.z), m_HivePositions[i, j], lerpSpeed, 0f, (delayLerp * (numberOfMoves + numberOfNewIndex)), numberOfIndexesHigher);
+								gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(gridManager.Grid[i, j].transform.localPosition.x, gridManager.Grid[i, j].transform.localPosition.y + (gridManager.YHiveOffset * (gridManager.Rows - j)), gridManager.Grid[i, j].transform.localPosition.z), gridManager.HivePositions[i, j], gridManager.LerpSpeed, 0f, (gridManager.DelayLerp * (numberOfMoves + numberOfNewIndex)), numberOfIndexesHigher);
 							}
 							else
 							{
 								numberOfMoves++;
-								m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed, (delayLerp * numberOfMoves), numberOfIndexesHigher);
+								gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(gridManager.Grid[i, j].transform.localPosition, gridManager.HivePositions[i, j], gridManager.LerpSpeed, (gridManager.DelayLerp * numberOfMoves), numberOfIndexesHigher);
 							}
 
-							m_Grid[i, j].OnPositionChanged(i, j);
+							gridManager.Grid[i, j].OnPositionChanged(i, j);
 						}
 					}
 					else
 					{
 						//blockage is above index
-						m_Grid[i, j] = FindNextHive(i, j, blockageLevel, ref numberOfIndexesHigher);
-						if (m_Grid[i, j] != null)
+						gridManager.Grid[i, j] = FindNextHive(i, j, blockageLevel, ref numberOfIndexesHigher);
+						if (gridManager.Grid[i, j] != null)
 						{
 							numberOfMoves++;
-							m_Grid[i, j].gameObject.AddComponent<MoveHive>();
-							m_Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(m_Grid[i, j].transform.localPosition, m_HivePositions[i, j], lerpSpeed, (delayLerp * numberOfMoves), numberOfIndexesHigher);
-							m_Grid[i, j].OnPositionChanged(i, j);
+							gridManager.Grid[i, j].gameObject.AddComponent<MoveHive>();
+							gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(gridManager.Grid[i, j].transform.localPosition, gridManager.HivePositions[i, j], gridManager.LerpSpeed, (gridManager.DelayLerp * numberOfMoves), numberOfIndexesHigher);
+							gridManager.Grid[i, j].OnPositionChanged(i, j);
 						}
 					}
 				}
@@ -387,13 +226,13 @@ public void UpdateGrid(List<Hive> hives)
 
 	void RemoveFromGrid(Hive hive)
 	{
-		for (int i = 0; i < m_colums; i++)
+		for (int i = 0; i < gridManager.Columns; i++)
 		{
-			for (int j = 0; j < m_rows; j++)
+			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				if (m_Grid[i, j] == hive)
+				if (gridManager.Grid[i, j] == hive)
 				{
-					m_Grid[i, j] = null;
+					gridManager.Grid[i, j] = null;
 				}
 			}
 		}
@@ -403,20 +242,20 @@ public void UpdateGrid(List<Hive> hives)
 	{
 		newHive = false;
 		// MAX INDEX
-		if (j == m_rows - 1)
+		if (j == gridManager.Rows - 1)
 		{
 			newHive = true;
-			return InstantiateHive(i, j);
+			return gridManager.InstantiateHive(i, j);
 		}
 		else
 		{
 			j++;
 			numberOfIndexesHigher++;
 			// check the index above the last one, if its not empty, take it as the next block to fall
-			if (m_Grid[i, j] != null && m_Grid[i, j].Value != emptyHiveLayer)
+			if (gridManager.Grid[i, j] != null && gridManager.Grid[i, j].Value != (int)HiveType.empty)
 			{
-				Hive tempHive = m_Grid[i, j];
-				m_Grid[i, j] = null;
+				Hive tempHive = gridManager.Grid[i, j];
+				gridManager.Grid[i, j] = null;
 				return tempHive;
 			}
 			else
@@ -440,10 +279,10 @@ public void UpdateGrid(List<Hive> hives)
 			j++;
 			numberOfIndexesHigher++;
 			// check the index above the last one, if its not empty, take it as the next block to fall
-			if (m_Grid[i, j] != null && m_Grid[i, j].Value != emptyHiveLayer)
+			if (gridManager.Grid[i, j] != null && gridManager.Grid[i, j].Value != (int)HiveType.empty)
 			{
-				Hive tempHive = m_Grid[i, j];
-				m_Grid[i, j] = null;
+				Hive tempHive = gridManager.Grid[i, j];
+				gridManager.Grid[i, j] = null;
 				return tempHive;
 			}
 			else
@@ -457,9 +296,9 @@ public void UpdateGrid(List<Hive> hives)
 	int GetIndexOfBlockage(int i, int j)
 	{
 		int index = -1;
-		for (int jj = 0; jj < m_Grid.GetLength(1); jj++)
+		for (int jj = 0; jj < gridManager.Grid.GetLength(1); jj++)
 		{
-			if (m_Grid[i, jj] != null && m_Grid[i, jj].GetHiveType == HiveType.blockage)
+			if (gridManager.Grid[i, jj] != null && gridManager.Grid[i, jj].GetHiveType == HiveType.blockage)
 			{
 				// if index you're checking on, is lower than the blockage, return first occurence of blockage
 				if (j < jj)
@@ -479,15 +318,15 @@ public void UpdateGrid(List<Hive> hives)
 	public List<Hive> ReturnAllHivesOfSameValue(HiveType hiveType, List<Hive> notToBeSelected)
 	{
 		List<Hive> temphives = new List<Hive>();
-		for (int i = 0; i < m_colums; i++)
+		for (int i = 0; i < gridManager.Columns; i++)
 		{
-			for (int j = 0; j < m_rows; j++)
+			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				if(m_Grid[i, j] != null){
-					if (m_Grid[i, j].GetHiveType == hiveType && !notToBeSelected.Contains(m_Grid[i, j]))
+				if(gridManager.Grid[i, j] != null){
+					if (gridManager.Grid[i, j].GetHiveType == hiveType && !notToBeSelected.Contains(gridManager.Grid[i, j]))
 					{
-						temphives.Add(m_Grid[i, j]);
-						m_Grid[i, j].SetSelectedImage();
+						temphives.Add(gridManager.Grid[i, j]);
+						gridManager.Grid[i, j].SetSelectedImage();
 					}
 				}
 			}
@@ -497,18 +336,18 @@ public void UpdateGrid(List<Hive> hives)
 
 	public void ShuffleGrid()
 	{
-		Shuffle(m_Grid);
+		Shuffle(gridManager.Grid);
 	}
 
 	void Shuffle(Hive[,] array)
 	{
-		for (int i = 0; i < m_colums; i++)
+		for (int i = 0; i < gridManager.Columns; i++)
 		{
-			for (int j = 0; j < m_rows; j++)
+			for (int j = 0; j < gridManager.Rows; j++)
 			{
 				int newI = UnityEngine.Random.Range(0, i - 1);
 				int newJ = UnityEngine.Random.Range(0, j - 1);
-				if (m_Grid[i, j].Value != 0 && m_Grid[newI, newJ].Value != 0)
+				if (gridManager.Grid[i, j].Value != 0 && gridManager.Grid[newI, newJ].Value != 0)
 					Swap(i, j, newI, newJ, array);
 			}
 		}
@@ -528,50 +367,5 @@ public void UpdateGrid(List<Hive> hives)
 			hive.SwitchState();
 		}
 		return null;
-	}
-
-	void InstantiateRows(int number, float offsetY, GameObject grid)
-	{
-		GameObject row = Instantiate(rowPrefab, new Vector3(0, 0 + offsetY, 0), rowPrefab.transform.rotation) as GameObject;
-		row.transform.SetParent(grid.transform, false);
-		row.name = string.Format("{0}{1}", "Row_", number);
-	}
-
-	Hive InstantiateHive(int x, int y)
-	{
-		GameObject prefabHive = Instantiate(hivePrefab, m_HivePositions[x, y], hivePrefab.transform.rotation) as GameObject;
-		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(m_scaleX, m_scaleX, m_scaleX);
-		prefabHive.transform.SetParent(m_GridContainer.transform.GetChild(x), false);
-		Hive tempHive = prefabHive.GetComponent<Hive>();
-		tempHive.OnPositionChanged(x, y);
-		tempHive.OnValueChanged(getRandomHiveType());
-		return tempHive;
-	}
-
-	void InstantiateBorder(int x, int y){
-		float scale = 1.3f;
-		GameObject prefabHive = Instantiate(borderPrefab, m_HivePositions[x, y], hivePrefab.transform.rotation) as GameObject;
-		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(m_scaleX * scale, m_scaleX * scale, m_scaleX * scale);
-		prefabHive.transform.SetParent(m_GridContainerBorder.transform.GetChild(x), false);
-	}
-
-	void CalculateMidNumber()
-	{
-		int number = 0;
-		for (int i = 0; i < m_colums; i++)
-		{
-			for (int j = 0; j < m_rows; j++)
-			{
-				number += m_Grid[i, j].Value;
-			}
-		}
-
-		number = Mathf.FloorToInt(number / (m_Grid.Length / 2));
-		midNumber = number;
-	}
-
-	HiveType getRandomHiveType()
-	{
-		return (HiveType)UnityEngine.Random.Range(1, 7);
 	}
 }

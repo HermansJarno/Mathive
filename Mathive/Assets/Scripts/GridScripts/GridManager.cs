@@ -1,218 +1,229 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class GridManager : MonoBehaviour {
-
-	/*
-	protected float m_refWidth = 800f;
-	protected float m_refHeight = 1280;
-	protected float xHiveOffset = 85;
-	protected float yRowOffset = 50;
-	protected float extraScale = 0.1f;
-
-	public GameObject m_GridContainerBackgrounds;
+public class GridManager : MonoBehaviour
+{
+    public GameObject m_GridContainerBackgrounds;
+	public GameObject m_GridContainerBorder;
 	public GameObject m_GridContainer;
+	[SerializeField] float m_refWidth = 600f;
+	[SerializeField] float m_refHeight = 1280;
+	[SerializeField] float xHiveOffset = 85;
+	[SerializeField] float yRowOffset = 50;
 
-	float lerpSpeed = 4;
-	float offsetTop = 200;
-	float yHiveOffset = 100;
+    GridInitializer gridInitializer;
 
-	private Vector3[,] m_HivePositions;
-	private Hive[,] m_Grid;
+    public float YRowOffset{
+        get {
+            return yRowOffset;
+        }
+        set {
+            yRowOffset = value;
+        }
+    }
+
+    public float XHiveOffset{
+        get {
+            return xHiveOffset;
+        }
+        set {
+            xHiveOffset = value;
+        }
+    }
+
+    public float RefHeight{
+        get {
+            return m_refHeight;
+        }
+    }
+
+    public float RefWidth{
+        get {
+            return m_refWidth;
+        }
+    }
+
+	[SerializeField] float yHiveOffset = 100;
+
+    public float YHiveOffset{
+        get {
+            return yHiveOffset;
+        }
+        set {
+            yHiveOffset = value;
+        }
+    }
+
+	[SerializeField] float lerpSpeed = 4;
+
+    public float LerpSpeed{
+        get{
+           return lerpSpeed; 
+        }
+    }
+
+	protected Vector3[,] m_HivePositions;
+
+    public Vector3[,] HivePositions{
+        get{
+            return m_HivePositions;
+        }
+        set
+        {
+            m_HivePositions = value;
+        }
+    }
+
+	protected Hive[,] m_Grid;
+
+    public Hive[,] Grid{
+        get{
+            return m_Grid;
+        }
+        set{
+            m_Grid = value;
+        }
+    }
+
 
 	private GridLevels m_GridLevels = new GridLevels();
-	private GridInitializer gridInitializer = new GridInitializer();
-	private Text scoreText;
+	//private Text Score;
 
-	private GameObject hivePrefab;
-	private GameManager m_GM;
+    public GridLevels GridLevels{
+        get{
+            return m_GridLevels;
+        }
+    }
 
-	float distanceBetweenHives = Mathf.Infinity;
-	float m_scaleX;
-	float m_scaleY;
-	float m_midScale;
+	protected GameObject hivePrefab;
+
+    public GameObject HivePrefab{
+        get{
+            return hivePrefab;
+        }
+    }
+
+	private GameObject borderPrefab;
+
+    public GameObject BorderPrefab{
+        get{
+            return borderPrefab;
+        }
+    }
+
+	private GameObject rowPrefab;
+
+    public GameObject RowPrefab{
+        get{
+            return rowPrefab;
+        }
+    }
+
+	private GameManager _GM;
+
+    public GameManager GameManager{
+        get{
+            return _GM;
+        }
+    }
+
+	protected float distanceBetweenHives = Mathf.Infinity;
+
+    public float DistanceBetweenHives{
+        get{
+            return distanceBetweenHives;
+        }
+        set{
+            distanceBetweenHives = value;
+        }
+    }
+
+	protected float m_scaleX;
+
+    public float ScaleX{
+        get{
+            return m_scaleX;
+        }
+        set{
+            m_scaleX = value;
+        }
+    }
+
+	protected float m_scaleY;
+    public float ScaleY{
+        get{
+            return m_scaleY;
+        }
+        set{
+            m_scaleY = value;
+        }
+    }
+    
+	[SerializeField] float extraScale = 0.1f;
+
+    public float ExtraScale {
+        get{
+            return extraScale;
+        }
+    }
+	float delayLerp = 0.1f;
+
+    public float DelayLerp {
+        get{
+            return delayLerp;
+        }
+    }
 
 	private int m_colums, m_rows;
+
+    public int Columns{
+        get {
+            return m_colums;
+        }set{
+            m_colums = value;
+        }
+    }
+
+    public int Rows{
+        get {
+            return m_rows;
+        }set{
+            m_rows = value;
+        }
+    }
+
 	Score m_score;
-	IceHivesController iceHivesController = new IceHivesController();
 
-	// Use this for initialization
-	public virtual void Start () {
-		hivePrefab = Resources.Load("Hive") as GameObject;
+	private int emptyHiveLayer = 0;
+
+    
+	void Start()
+	{
 		m_score = GameObject.Find("Scripts").GetComponent<Score>();
-		scoreText = GameObject.Find("Score").GetComponent<Text>();
-		m_GM = GameObject.Find("Scripts").GetComponent<GameManager>();
-		m_colums = GridLevels.Levels[GetManager.Level - 1][0];
-		m_rows = GridLevels.Levels[GetManager.Level - 1][1];
+		//Score = GameObject.Find("Score").GetComponent<Text>();
+		hivePrefab = Resources.Load("Hive") as GameObject;
+		borderPrefab = Resources.Load("HiveBorder") as GameObject;
+		rowPrefab = Resources.Load("Row_") as GameObject;
+		_GM = GameObject.Find("GameManager").GetComponent<GameManager>();
+        gridInitializer = GameObject.Find("GridManager").GetComponent<GridInitializer>();
+        gridInitializer.InitializeGrid();
 
-		gridInitializer.InitializeGrid(Colums, Rows);
-	}
-	
-	// Update is called once per frame
-	public virtual void Update () {
-		
 	}
 
-	public virtual void Awake(){}
-
-	public virtual Hive InstantiateHive(int x, int y)
+    public virtual Hive InstantiateHive(int x, int y)
 	{
 		GameObject prefabHive = Instantiate(hivePrefab, m_HivePositions[x, y], hivePrefab.transform.rotation) as GameObject;
 		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(m_scaleX, m_scaleX, m_scaleX);
 		prefabHive.transform.SetParent(m_GridContainer.transform.GetChild(x), false);
 		Hive tempHive = prefabHive.GetComponent<Hive>();
 		tempHive.OnPositionChanged(x, y);
-		tempHive.OnValueChanged(getRandomValue());
+		tempHive.OnValueChanged(getRandomHiveType());
 		return tempHive;
 	}
 
-	int getRandomValue()
+	HiveType getRandomHiveType()
 	{
-		return UnityEngine.Random.Range(1, 7);
+		return (HiveType)UnityEngine.Random.Range(1, 7);
 	}
-
-	public virtual void DestroyHive(Hive hive)
-	{
-		StartCoroutine(hive.transform.Scale(Vector3.zero, 0.2f, hive));
-		RemoveFromGrid(hive);
-	}
-
-	void RemoveFromGrid(Hive hive)
-	{
-		for (int i = 0; i < Colums; i++)
-		{
-			for (int j = 0; j < Rows; j++)
-			{
-				if (Grid[i, j] == hive)
-				{
-					Grid[i, j] = null;
-				}
-			}
-		}
-	}
-
-	public Score GetScore{
-		get{
-			return m_score;
-		}
-	}
-
-	public Text ScoreText{
-		get {
-			return scoreText;
-		}
-	}
-
-	public GameObject HivePrefab{
-		get{
-			return hivePrefab;
-		}
-	}
-
-	public int Colums{
-		get{
-			return m_colums;
-		}
-	}
-
-	public int Rows
-	{
-		get
-		{
-			return m_rows;
-		}
-	}
-
-	public IceHivesController IceHivesController{
-		get{
-			return iceHivesController;
-		}
-	}
-
-	public Hive[,] Grid {
-		get{
-			return m_Grid;
-		}
-		set{
-			m_Grid = value;
-		}
-	}
-
-	public float ScaleX
-	{
-		get
-		{
-			return m_scaleX;
-		}
-		set
-		{
-			m_scaleX = value;
-		}
-	}
-
-	public float ScaleY
-	{
-		get
-		{
-			return m_scaleY;
-		}
-		set
-		{
-			m_scaleY = value;
-		}
-	}
-
-	public GridLevels GridLevels {
-		get{
-			return m_GridLevels;
-		}
-	}
-
-	public GameManager GetManager {
-		get{
-			return m_GM;
-		}
-	}
-
-	public float DistanceBetweenHives {
-		get
-		{
-			return distanceBetweenHives;
-		}
-		set
-		{
-			distanceBetweenHives = value;
-		}
-	}
-
-	public Vector3[,] HivePositions {
-		get{
-			return m_HivePositions;
-		}
-		set
-		{
-			m_HivePositions = value;
-		}
-	}
-
-	public float LerpSpeed {
-		get{
-			return lerpSpeed;
-		}
-	}
-
-	public float YHiveOffset {
-		get
-		{
-			return yHiveOffset;
-		}
-		set
-		{
-			yHiveOffset = value;
-		}
-	}
-
-*/
 }

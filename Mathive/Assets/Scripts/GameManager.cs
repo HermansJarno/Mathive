@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 
-  [SerializeField] private int _level = 1;
+  private int _level = 1;
   [SerializeField] private int _score = 0;
   [SerializeField] private int _goalScore = 0;
   [SerializeField] private int _movesLeft = 30;
@@ -22,11 +22,11 @@ public class GameManager : MonoBehaviour {
   {
     scoreController = GameObject.Find("Scripts").GetComponent<Score>();
     SetTargets();
-
     _level = GameObject.Find("LevelData").GetComponent<Level>()._Level;
+
   }
 
-  public void SetLevel(int level, int maxTime, int goalScore, int movesLeft)
+  public void SetLevel(int level, int goalScore, int movesLeft)
   {
     _level = level;
     _goalScore = goalScore;
@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour {
 
   public int Level
   {
-    get { return _level; }
+    get { return _level = GameObject.Find("LevelData").GetComponent<Level>()._Level; }
     set { _level = value; }
   }
 

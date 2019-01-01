@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Level : MonoBehaviour {
 
-  [SerializeField] int _level = 1;
+  public int _level = 1;
 
   private void Awake()
   {

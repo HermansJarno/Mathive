@@ -37,7 +37,7 @@ public class TouchController : MonoBehaviour
 	{
 		grid = GameObject.Find("Scripts").GetComponent<GridController>();
 		LRController = GameObject.Find("LineRenderer").GetComponent<LineRenderController>();
-		GM = GameObject.Find("Scripts").GetComponent<GameManager>();
+		GM = GameObject.Find("GameManager").GetComponent<GameManager>();
 	}
 
 	void Update()
