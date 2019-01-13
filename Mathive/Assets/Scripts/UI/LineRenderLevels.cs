@@ -8,7 +8,7 @@ public class LineRenderLevels : MonoBehaviour {
   public Transform containerLevels;
   public float lineDrawSpeed = 6f;
 
-  private void Start()
+  private void Update()
   {
     lineRenderer.sortingOrder = 1;
     lineRenderer.sortingLayerName = "LineRender";

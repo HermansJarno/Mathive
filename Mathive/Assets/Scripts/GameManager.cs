@@ -17,12 +17,19 @@ public class GameManager : MonoBehaviour {
 
   Score scoreController;
   private Text _movesLeftText;
+  private GameObject popUpNoMovesLeft;
+  private GridController gridController;
+  private bool gameEnded = false;
 
   private void Start()
   {
     scoreController = GameObject.Find("Scripts").GetComponent<Score>();
+    gridController = GameObject.Find("Scripts").GetComponent<GridController>();
     SetTargets();
     _level = GameObject.Find("LevelData").GetComponent<Level>()._Level;
+    MovesLeft = _movesLeft;
+    popUpNoMovesLeft = GameObject.Find("PopUpOutOfMoves");
+    popUpNoMovesLeft.SetActive(false);
 
   }
 
@@ -84,6 +91,10 @@ public class GameManager : MonoBehaviour {
     set { _goalScore = value; }
   }
 
+  public bool GameEnded {
+    get { return gameEnded; }
+  }
+
   public int MovesLeft
   {
     get { return _movesLeft; }
@@ -97,8 +108,11 @@ public class GameManager : MonoBehaviour {
       {
         _movesLeft = value;
       }
-      else if(value == 0)
+      if(value == 0)
       {
+        gridController.InputAvailable = false;
+        gameEnded = true;
+        popUpNoMovesLeft.SetActive(true);
         Debug.Log("GAME ENDED");
       }
       _movesLeftText.text = _movesLeft.ToString();

@@ -39,10 +39,10 @@ public class TouchController : MonoBehaviour
 		LRController = GameObject.Find("LineRenderer").GetComponent<LineRenderController>();
 		GM = GameObject.Find("GameManager").GetComponent<GameManager>();
 	}
-
+ 
 	void Update()
 	{
-		if (grid.InputAvailable)
+		if (grid.InputAvailable && !GM.GameEnded)
 		{
 			//We check if we have more than one touch happening.
 			//We also check if the first touches phase is Ended (that the finger was lifted)

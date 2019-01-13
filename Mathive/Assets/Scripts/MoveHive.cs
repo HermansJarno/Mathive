@@ -61,13 +61,6 @@ public class MoveHive : MonoBehaviour
 		//We set the start position to the current position, and the finish to 10 spaces in the 'forward' direction
 		_startPosition = begin;
 		_endPosition = end;
-		/*
-		if (delay >= 0.1f)
-		{
-			extraDistance1 /= (delay * 2);
-			extraDistance2 /= (delay * 4);
-			extraDistance3 /= (delay * 8);
-		}*/
 		_endPositionExtra1 = new Vector3(_endPosition.x, _endPosition.y + extraDistance1, _endPosition.z);
 		_endPositionExtra2 = new Vector3(_endPosition.x, _endPosition.y + extraDistance2, _endPosition.z);
 		_endPositionExtra3 = new Vector3(_endPosition.x, _endPosition.y + extraDistance3, _endPosition.z);
@@ -86,14 +79,6 @@ public class MoveHive : MonoBehaviour
 		//We set the start position to the current position, and the finish to 10 spaces in the 'forward' direction
 		_startPosition = begin;
 		_endPosition = end;
-		/*
-		if (delay >= 0.1f)
-		{
-			extraDistance1 /= (delay * 2);
-			extraDistance2 /= (delay * 4);
-			extraDistance3 /= (delay * 8);
-		}*/
-
 		_endPositionExtra1 = new Vector3(_endPosition.x, _endPosition.y + extraDistance1, _endPosition.z);
 		_endPositionExtra2 = new Vector3(_endPosition.x, _endPosition.y + extraDistance2, _endPosition.z);
 		_endPositionExtra3 = new Vector3(_endPosition.x, _endPosition.y + extraDistance3, _endPosition.z);
