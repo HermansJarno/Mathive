@@ -128,6 +128,8 @@ public class GameManager : MonoBehaviour
 				// reward player
 			}else{
 				popUpNoMovesLeft.SetActive(true);
+				popUpNoMovesLeft.AddComponent<PanelAnimation>();
+				popUpNoMovesLeft.GetComponent<PanelAnimation>().yOffset = -popUpNoMovesLeft.transform.localPosition.y;
 			}
 			gameEnded = true;
 		}

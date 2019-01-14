@@ -5,12 +5,12 @@ using UnityEngine;
 public class PanelAnimation : MonoBehaviour
 {
 	public float yOffset;
-	public float _maxSpeed = 12;//This is the maximum speed that the object will achieve
-	public float _acceleration = 10;//How fast will object reach a maximum speed
+	public float _maxSpeed = 4;//This is the maximum speed that the object will achieve
+	public float _acceleration = 1;//How fast will object reach a maximum speed
 
 	float timeTakenDuringLerp = 1f;
-	float _speed = 3;//Don't touch this
-	float _timeToWaitToDrop = 0.5f;
+	float _speed = 1;//Don't touch this
+	float _timeToWaitToDrop = 0.1f;
 	float _timeStartedLerping;
 	bool _startLerp = false;
 	bool _isLerping = false;

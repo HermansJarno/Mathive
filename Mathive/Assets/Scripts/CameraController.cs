@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    float speed = 0.01f;
+    float speed = 0.006f;
     float fadeOutSpeed = 0f;
     float lastYPoint = 0;
     private bool fadeOut = false;
