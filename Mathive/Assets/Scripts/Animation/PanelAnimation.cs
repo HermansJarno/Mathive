@@ -4,30 +4,62 @@ using UnityEngine;
 
 public class PanelAnimation : MonoBehaviour
 {
+	public float yOffset;
+	public float _maxSpeed = 12;//This is the maximum speed that the object will achieve
+	public float _acceleration = 10;//How fast will object reach a maximum speed
+
+	float timeTakenDuringLerp = 1f;
+	float _speed = 3;//Don't touch this
+	float _timeToWaitToDrop = 0.5f;
+	float _timeStartedLerping;
+	bool _startLerp = false;
+	bool _isLerping = false;
+	Vector3 _startPos, _endPos;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+		_startPos = transform.localPosition;
+		_endPos = new Vector3(_startPos.x, _startPos.y + yOffset, _startPos.x);
+		_timeStartedLerping = Time.time;
+		_startLerp = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
-    }
+		if (_startLerp)
+		{
+			float timeSinceStarted = (Time.time - _timeStartedLerping);
 
-    	public void BeginLerp(Vector3 begin, Vector3 end, float speed, float alpha, float delay, float numberOfSteps)
-	{
-		//We set the start position to the current position, and the finish to 10 spaces in the 'forward' direction
-		/* _startPosition = begin;
-		_endPosition = end;
-		_endPositionExtra1 = new Vector3(_endPosition.x, _endPosition.y + extraDistance1, _endPosition.z);
-		_endPositionExtra2 = new Vector3(_endPosition.x, _endPosition.y + extraDistance2, _endPosition.z);
-		_maxSpeed = speed;
-		m_alpha = alpha;
-		transparancy = gameObject.AddComponent<CanvasGroup>();
-		transparancy.alpha = m_alpha;
-		_alphaLerping = true;
-		Invoke("startLerpDelayed", delay);*/
-	}
+			if (timeSinceStarted >= _timeToWaitToDrop)
+			{
+				_startLerp = false;
+				_timeStartedLerping = Time.time;
+				_isLerping = true;
+			}
+		}
+		if (_isLerping)
+		{
+			if (_speed < _maxSpeed)
+			{
+				_speed = _speed + (_acceleration * Time.deltaTime);
+			}
+			float timeSinceStarted = (Time.time - _timeStartedLerping) * _speed;
+			float percentageComplete = timeSinceStarted / timeTakenDuringLerp;
+
+			//Perform the actual lerping.  Notice that the first two parameters will always be the same
+			//throughout a single lerp-processs (ie. they won't change until we hit the space-bar again
+			//to start another lerp)
+			transform.localPosition = Vector3.Lerp(_startPos, _endPos, percentageComplete);
+
+			//When we've completed the lerp, we set _isLerping to false
+			if (percentageComplete >= 1.0f)
+			{
+				_timeStartedLerping = Time.time;
+				_isLerping = false;
+				Destroy(this);
+			}
+		}
+    }
 }
