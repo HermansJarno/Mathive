@@ -9,8 +9,6 @@ public class GridController : MonoBehaviour
 	private GridManager gridManager;
 	private GameManager gameManager;
 
-	private Text Score;
-
 	Score m_score;
 
 	private bool inputAvailable = true;
@@ -31,7 +29,6 @@ public class GridController : MonoBehaviour
 	{
 		gridManager = GameObject.Find("GridManager").GetComponent<GridManager>();
 		gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-		Score = GameObject.Find("Score").GetComponent<Text>();
 		m_score = GameObject.Find("Scripts").GetComponent<Score>();
 	}
 
@@ -98,53 +95,6 @@ public class GridController : MonoBehaviour
 		return isInTheGrid;
 	}
 
-	public void CalculateScore(List<Hive> hives)
-	{
-		int numberOfBlue = 0, numberOfRed = 0, numberOfGreen = 0, numberOfYellow = 0, numberOfCyan = 0, numberOfMagenta = 0;
-
-		foreach (Hive hive in hives)
-		{
-			switch (hive.GetHiveType)
-			{
-				case HiveType.red:
-					numberOfRed++;
-					break;
-				case HiveType.green:
-					numberOfGreen++;
-					break;
-				case HiveType.blue:
-					numberOfBlue++;
-					break;
-				case HiveType.yellow:
-					numberOfYellow++;
-					break;
-				case HiveType.cyan:
-					numberOfCyan++;
-					break;
-				case HiveType.magenta:
-					numberOfMagenta++;
-					break;
-			}
-		}
-		m_score.UpdateScores(numberOfBlue, numberOfYellow, numberOfCyan, numberOfGreen, numberOfRed, numberOfMagenta);
-
-		int resultNumber = 0;
-		int macht = hives.Count;
-		int currentNumber = hives[0].Value;
-		resultNumber = currentNumber * 2;
-
-		hives[hives.Count - 1].OnValueChanged((HiveType)resultNumber);
-
-		int tempScore = int.Parse(Score.text);
-		foreach (Hive hive in hives)
-		{
-			resultNumber += hive.Value;
-		}
-		resultNumber *= macht;
-		resultNumber += tempScore;
-		Score.text = resultNumber.ToString();
-	}
-
 	void DestroyHives(List<Hive> hives)
 	{
 		foreach (Hive hive in hives)
@@ -162,6 +112,7 @@ public class GridController : MonoBehaviour
 	public void UpdateGrid(List<Hive> hives)
 	{
 		inputAvailable = false;
+		m_score.CalculateScore(hives);
 		DestroyHives(hives);
 		int highestNumberOfMoves = 0;
 		for (int i = 0; i < gridManager.Columns; i++)

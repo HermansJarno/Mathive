@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class Score : MonoBehaviour
 {
@@ -20,10 +22,13 @@ public class Score : MonoBehaviour
 
 	bool allTargetsDone = false;
 
+	private Text scoreText;
+
 	public ScoreUI SUI;
 
 	private void Start()
 	{
+		scoreText = GameObject.Find("Score").GetComponent<Text>();
 		SUI = GameObject.Find("UIScripts").GetComponent<ScoreUI>();
 	}
 
@@ -62,6 +67,54 @@ public class Score : MonoBehaviour
 		cyanScore = CountScore(cyan, cyanScore, targetCyan);
 		magentaScore = CountScore(magenta, magentaScore, targetMagenta);
 		UpdateUI();
+		checkIfTargetsAreDone();
+	}
+
+	public void CalculateScore(List<Hive> hives)
+	{
+		int numberOfBlue = 0, numberOfRed = 0, numberOfGreen = 0, numberOfYellow = 0, numberOfCyan = 0, numberOfMagenta = 0;
+
+		foreach (Hive hive in hives)
+		{
+			switch (hive.GetHiveType)
+			{
+				case HiveType.red:
+					numberOfRed++;
+					break;
+				case HiveType.green:
+					numberOfGreen++;
+					break;
+				case HiveType.blue:
+					numberOfBlue++;
+					break;
+				case HiveType.yellow:
+					numberOfYellow++;
+					break;
+				case HiveType.cyan:
+					numberOfCyan++;
+					break;
+				case HiveType.magenta:
+					numberOfMagenta++;
+					break;
+			}
+		}
+		UpdateScores(numberOfBlue, numberOfYellow, numberOfCyan, numberOfGreen, numberOfRed, numberOfMagenta);
+
+		int resultNumber = 0;
+		int macht = hives.Count;
+		int currentNumber = hives[0].Value;
+		resultNumber = currentNumber * 2;
+
+		hives[hives.Count - 1].OnValueChanged((HiveType)resultNumber);
+
+		int tempScore = int.Parse(scoreText.text);
+		foreach (Hive hive in hives)
+		{
+			resultNumber += hive.Value;
+		}
+		resultNumber *= macht;
+		resultNumber += tempScore;
+		scoreText.text = resultNumber.ToString();
 	}
 
 	int CountScore(int newScore, int oldScore, int target)

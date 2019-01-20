@@ -22,7 +22,7 @@ public class TouchController : MonoBehaviour
 	Hive lastHive;
 
 	// Get functions of grid
-	GridController grid;
+	GridController gridController;
 
 	//Get functions of LR
 	LineRenderController LRController;
@@ -35,14 +35,14 @@ public class TouchController : MonoBehaviour
 
 	private void Start()
 	{
-		grid = GameObject.Find("Scripts").GetComponent<GridController>();
+		gridController = GameObject.Find("Scripts").GetComponent<GridController>();
 		LRController = GameObject.Find("LineRenderer").GetComponent<LineRenderController>();
 		GM = GameObject.Find("GameManager").GetComponent<GameManager>();
 	}
  
 	void Update()
 	{
-		if (grid.InputAvailable && !GM.GameEnded)
+		if (gridController.InputAvailable && !GM.GameEnded)
 		{
 			//We check if we have more than one touch happening.
 			//We also check if the first touches phase is Ended (that the finger was lifted)
@@ -76,7 +76,7 @@ public class TouchController : MonoBehaviour
 									{
 										if (resultHive == lastHive)
 										{
-											specialSelectionHives = grid.DeselectAllHivesOfSameValue(specialSelectionHives);
+											specialSelectionHives = gridController.DeselectAllHivesOfSameValue(specialSelectionHives);
 											specialSelectionActivated = false;
 											lineHives.RemoveAt(lineHives.Count - 1);
 										}
@@ -115,7 +115,7 @@ public class TouchController : MonoBehaviour
 											selectedHives.Push(tempHive);
 										}
 										// If selected hive is already in the Stack, do nothing
-										if (grid.IsHiveNear(lastHive, resultHive))
+										if (gridController.IsHiveNear(lastHive, resultHive))
 										{
 											if (!selectedHives.Contains(resultObj))
 											{
@@ -153,7 +153,7 @@ public class TouchController : MonoBehaviour
 			// Check if it's the right result.
 			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
 			{
-				grid.InputAvailable = false;
+				gridController.InputAvailable = false;
 				if (listHives.Count > 1)
 				{
 					if (specialSelectionActivated)
@@ -170,11 +170,10 @@ public class TouchController : MonoBehaviour
 						//This hive gets the sum of all hives
 						listHives.Add(tempHive);
 					}
-					grid.CalculateScore(listHives);
-					grid.UpdateGrid(listHives);
+					gridController.UpdateGrid(listHives);
 					GM.MovesLeft--;
 				}else{
-					grid.InputAvailable = true;
+					gridController.InputAvailable = true;
 				}
 
 				if (listHives.Count > 0)

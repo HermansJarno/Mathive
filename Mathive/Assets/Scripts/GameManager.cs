@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
 
 	Score scoreController;
 	private Text _movesLeftText;
-	private GameObject popUpNoMovesLeft;
+	private GameObject popUpNoMovesLeft, popUpLevelDone;
 	private GridController gridController;
 	private bool gameEnded = false;
 
@@ -30,8 +30,7 @@ public class GameManager : MonoBehaviour
 		_level = GameObject.Find("LevelData").GetComponent<Level>()._Level;
 		MovesLeft = _movesLeft;
 		popUpNoMovesLeft = GameObject.Find("PopUpOutOfMoves");
-		popUpNoMovesLeft.SetActive(false);
-
+		popUpLevelDone = GameObject.Find("PopUpLevelDone");
 	}
 
 	public void SetLevel(int level, int goalScore, int movesLeft)
@@ -119,19 +118,22 @@ public class GameManager : MonoBehaviour
 		if(value > 0){
 			if (scoreController.AllTargetsDone)
 			{
-				// reward player
+				showPanel(popUpLevelDone);
 				gameEnded = true;
 			}
 		}else if(value == 0){
 			if (scoreController.AllTargetsDone)
 			{
-				// reward player
+				showPanel(popUpLevelDone);
 			}else{
-				popUpNoMovesLeft.SetActive(true);
-				popUpNoMovesLeft.AddComponent<PanelAnimation>();
-				popUpNoMovesLeft.GetComponent<PanelAnimation>().yOffset = -popUpNoMovesLeft.transform.localPosition.y;
+				showPanel(popUpNoMovesLeft);
 			}
 			gameEnded = true;
 		}
+	}
+
+	void showPanel(GameObject panel){
+		panel.AddComponent<PanelAnimation>();
+		panel.GetComponent<PanelAnimation>().yOffset = -popUpNoMovesLeft.transform.localPosition.y;
 	}
 }
