@@ -7,11 +7,13 @@ public class GridInitializer : MonoBehaviour {
 
 	GridManager gridManager;
 	GameManager gameManager;
+	GridController gridController;
 
 	public void InitializeGrid()
 	{
 		gridManager = GameObject.Find("GridManager").GetComponent<GridManager>();
 		gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+		gridController = GameObject.Find("Scripts").GetComponent<GridController>();
 
 		gridManager.Columns = gridManager.GridLevels.Levels[gameManager.Level - 1][0];
 		gridManager.Rows = gridManager.GridLevels.Levels[gameManager.Level - 1][1];
@@ -95,9 +97,12 @@ public class GridInitializer : MonoBehaviour {
 				if (gridManager.Grid[i, j] == null)
 				{
 					InstantiateBorder(i,j);
+
+					
 					int num = UnityEngine.Random.Range(1, 7);
 					gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
 					gridManager.Grid[i, j].SetHive(num, i, j);
+					
 
 					if (j - 1 > 0)
 					{
@@ -107,9 +112,24 @@ public class GridInitializer : MonoBehaviour {
 							gridManager.DistanceBetweenHives = (float)Math.Round((double)dist, 1);
 						}
 					}
+					
+
 				}
 			}
 		}
+
+		for (int i = 0; i < gridManager.Columns; i++)
+		{
+			for (int j = 0; j < gridManager.Rows; j++)
+			{
+				if(gridManager.Grid[i, j].Value != 0){
+					Destroy(gridManager.Grid[i, j].gameObject);
+					gridManager.Grid[i, j] = null;
+				}
+			}
+		}
+
+		InstantiateGrid();
 
 		//Blockage
 		//Columns
@@ -146,5 +166,146 @@ public class GridInitializer : MonoBehaviour {
 		GameObject prefabHive = Instantiate(gridManager.BorderPrefab, gridManager.HivePositions[x, y], gridManager.HivePrefab.transform.rotation) as GameObject;
 		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(gridManager.ScaleX * scale, gridManager.ScaleX * scale, gridManager.ScaleX * scale);
 		prefabHive.transform.SetParent(gridManager.m_GridContainerBorder.transform.GetChild(x), false);
+	}
+
+	public void InstantiateGrid()
+	{
+		gridController.InputAvailable = false;
+		int highestNumberOfMoves = 0;
+		for (int i = 0; i < gridManager.Columns; i++)
+		{
+			int numberOfNewIndex = 0;
+			float numberOfMoves = -1;
+			for (int j = 0; j < gridManager.Rows; j++)
+			{
+				if (gridManager.Grid[i, j] == null)
+				{
+					int blockageLevel = GetIndexOfBlockage(i, j);
+					float numberOfIndexesHigher = 0;
+					if (blockageLevel < j || blockageLevel == -1)
+					{
+						// blockage is beneath index
+						bool hadToCreateNewIndex = false;
+						gridManager.Grid[i, j] = FindNextHive(i, j, out hadToCreateNewIndex, ref numberOfIndexesHigher);
+						if (gridManager.Grid[i, j] != null)
+						{
+							gridManager.Grid[i, j].gameObject.AddComponent<MoveHive>();
+
+							if (hadToCreateNewIndex)
+							{
+								numberOfNewIndex++;
+								gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(gridManager.Grid[i, j].transform.localPosition.x, gridManager.Grid[i, j].transform.localPosition.y + (gridManager.YHiveOffset * (gridManager.Rows - j)), gridManager.Grid[i, j].transform.localPosition.z), gridManager.HivePositions[i, j], gridManager.LerpSpeed, 0f, (gridManager.DelayLerp * (numberOfMoves + numberOfNewIndex)), numberOfIndexesHigher);
+							}
+							else
+							{
+								numberOfMoves++;
+								gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(gridManager.Grid[i, j].transform.localPosition, gridManager.HivePositions[i, j], gridManager.LerpSpeed, (gridManager.DelayLerp * numberOfMoves), numberOfIndexesHigher);
+							}
+
+							gridManager.Grid[i, j].OnPositionChanged(i, j);
+						}
+					}
+					else
+					{
+						//blockage is above index
+						gridManager.Grid[i, j] = FindNextHive(i, j, blockageLevel, ref numberOfIndexesHigher);
+						if (gridManager.Grid[i, j] != null)
+						{
+							numberOfMoves++;
+							gridManager.Grid[i, j].gameObject.AddComponent<MoveHive>();
+							gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(gridManager.Grid[i, j].transform.localPosition, gridManager.HivePositions[i, j], gridManager.LerpSpeed, (gridManager.DelayLerp * numberOfMoves), numberOfIndexesHigher);
+							gridManager.Grid[i, j].OnPositionChanged(i, j);
+						}
+					}
+				}
+				if (highestNumberOfMoves < (int)numberOfMoves)
+				{
+					highestNumberOfMoves = (int)numberOfMoves;
+				}
+			}
+		}
+		Invoke("SetInputActive", 0.1f * highestNumberOfMoves);
+	}
+
+	void SetInputActive()
+	{
+		gridController.InputAvailable = true;
+	}
+
+	Hive FindNextHive(int i, int j, out bool newHive, ref float numberOfIndexesHigher)
+	{
+		newHive = false;
+		// MAX INDEX
+		if (j == gridManager.Rows - 1)
+		{
+			newHive = true;
+			return gridManager.InstantiateHive(i, j);
+		}
+		else
+		{
+			j++;
+			numberOfIndexesHigher++;
+			// check the index above the last one, if its not empty, take it as the next block to fall
+			if (gridManager.Grid[i, j] != null && gridManager.Grid[i, j].Value != (int)HiveType.empty)
+			{
+				Hive tempHive = gridManager.Grid[i, j];
+				gridManager.Grid[i, j] = null;
+				return tempHive;
+			}
+			else
+			{
+				// if no next hive was found, search for the next
+				return FindNextHive(i, j, out newHive, ref numberOfIndexesHigher);
+			}
+		}
+	}
+
+	Hive FindNextHive(int i, int j, int blockageIndex, ref float numberOfIndexesHigher)
+	{
+		// MAX INDEX
+		if (j == blockageIndex - 1)
+		{
+			// search side hive, if found, return bool made side movement
+			return null;
+		}
+		else
+		{
+			j++;
+			numberOfIndexesHigher++;
+			// check the index above the last one, if its not empty, take it as the next block to fall
+			if (gridManager.Grid[i, j] != null && gridManager.Grid[i, j].Value != (int)HiveType.empty)
+			{
+				Hive tempHive = gridManager.Grid[i, j];
+				gridManager.Grid[i, j] = null;
+				return tempHive;
+			}
+			else
+			{
+				// if no next hive was found, search for the next
+				return FindNextHive(i, j, blockageIndex, ref numberOfIndexesHigher);
+			}
+		}
+	}
+
+	int GetIndexOfBlockage(int i, int j)
+	{
+		int index = -1;
+		for (int jj = 0; jj < gridManager.Grid.GetLength(1); jj++)
+		{
+			if (gridManager.Grid[i, jj] != null && gridManager.Grid[i, jj].GetHiveType == HiveType.blockage)
+			{
+				// if index you're checking on, is lower than the blockage, return first occurence of blockage
+				if (j < jj)
+				{
+					return jj;
+				}
+				// if index you're checking on, is higher than the blockage, check if there is another blockage.
+				else if (j > jj)
+				{
+					index = jj;
+				}
+			}
+		}
+		return index;
 	}
 }

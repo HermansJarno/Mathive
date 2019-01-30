@@ -9,7 +9,7 @@ public class MoveHive : MonoBehaviour
 	public float timeTakenDuringLerpScale = 0.5f;
 	public float timeToWaitToDrop = 0.16f;
 
-	float m_speed = 3;//Don't touch this
+	float m_speed = 1.5f;//Don't touch this
 	float _maxSpeed = 20;//This is the maximum speed that the object will achieve
 	float _acceleration = 10;//How fast will object reach a maximum speed
 

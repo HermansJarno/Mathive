@@ -20,14 +20,16 @@ public class GameManager : MonoBehaviour
 	private Text _movesLeftText;
 	private GameObject popUpNoMovesLeft, popUpLevelDone;
 	private GridController gridController;
+	private LevelController levelController;
 	private bool gameEnded = false;
 
 	private void Start()
 	{
 		scoreController = GameObject.Find("Scripts").GetComponent<Score>();
 		gridController = GameObject.Find("Scripts").GetComponent<GridController>();
+		levelController = GameObject.Find("LevelData").GetComponent<LevelController>();
+		_level = levelController.level;
 		SetTargets();
-		_level = GameObject.Find("LevelData").GetComponent<Level>()._Level;
 		MovesLeft = _movesLeft;
 		popUpNoMovesLeft = GameObject.Find("PopUpOutOfMoves");
 		popUpLevelDone = GameObject.Find("PopUpLevelDone");
@@ -46,7 +48,7 @@ public class GameManager : MonoBehaviour
 		//TargetQuantity = quantityNumber;
 
 		//make this dynamic later point
-		scoreController.SetTargets(10, 10, 10, 10, 10, 10);
+		scoreController.SetTargets(1, 1, 1, 1, 1, 1);
 	}
 
 	public bool TargetIsCompleted()
@@ -60,7 +62,10 @@ public class GameManager : MonoBehaviour
 
 	public int Level
 	{
-		get { return _level = GameObject.Find("LevelData").GetComponent<Level>()._Level; }
+		get {
+			if(levelController == null) levelController = GameObject.Find("LevelData").GetComponent<LevelController>();
+			return _level = levelController.level; 
+		}
 		set { _level = value; }
 	}
 
@@ -119,12 +124,14 @@ public class GameManager : MonoBehaviour
 			if (scoreController.AllTargetsDone)
 			{
 				showPanel(popUpLevelDone);
+				levelController.UpdateHighestLevel(_level + 1);
 				gameEnded = true;
 			}
 		}else if(value == 0){
 			if (scoreController.AllTargetsDone)
 			{
 				showPanel(popUpLevelDone);
+				levelController.UpdateHighestLevel(_level + 1);
 			}else{
 				showPanel(popUpNoMovesLeft);
 			}
