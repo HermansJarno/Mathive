@@ -4,25 +4,39 @@ using UnityEngine;
 
 public class PlayerProgress : MonoBehaviour
 {
-    private int currentLevel = 1;
+    private int highestLevel = 1;
+    private int numberOfLifes = 3;
+    private int lastPlayedLevel = 1;
+    private string playerName = "";
+
+    private float lastPlayedTime = 0f;
     private List<List<int>> scores = new List<List<int>>();
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public int CurrentLevel{
-        get{return currentLevel;}
+    public int HighestLevel{
+        get{return highestLevel;}
         set{
-            currentLevel = value;
+            highestLevel = value;
+        }
+    }
+
+    public int NumberOfLifes{
+        get{return numberOfLifes;}
+        set{
+            numberOfLifes = value;
+        }
+    }
+
+    public int LastPlayedLevel{
+        get{return lastPlayedLevel;}
+        set{
+            lastPlayedLevel = value;
+        }
+    }
+
+    public float LastPlayedTime{
+        get{return lastPlayedTime;}
+        set{
+            lastPlayedTime = value;
         }
     }
 

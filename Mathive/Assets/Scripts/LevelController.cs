@@ -7,6 +7,8 @@ public class LevelController : MonoBehaviour {
   private int oldLevel = 1;
   private int _level = 1;
 
+  private int maxLevel = 3;
+
   DataController dataController;
   LevelLoader levelLoader = new LevelLoader();
 
@@ -23,6 +25,7 @@ public class LevelController : MonoBehaviour {
   { 
     int levelNr = int.Parse(go.name.Replace("Level ", ""));
     if(levelNr <= dataController.GetCurrentLevel()) {
+      Debug.Log("loadLevel: " + levelNr);
       _level = levelNr;
       levelLoader.LoadLevel();
     } 
@@ -30,7 +33,7 @@ public class LevelController : MonoBehaviour {
 
   public int level
   {
-    get { return dataController.GetCurrentLevel(); }
+    get { return _level; }
   }
 
   public int OldLevel{
@@ -39,7 +42,8 @@ public class LevelController : MonoBehaviour {
   }
 
   public void UpdateHighestLevel(int level){
+    if(level <= maxLevel){
       dataController.SubmitNewHighestLevel(level);
+    }
   }
-
 }

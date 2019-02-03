@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
-public class DataController : MonoBehaviour 
+public class DataController : MonoBehaviour
 {
     private Hive[,] currentGrid;
-    private PlayerProgress playerProgress;
+    private PlayerProgress playerProgress = new PlayerProgress();
 
     private string gameDataFileName = "data.json";
 
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
+        Debug.Log(((float)DateTime.Now.Hour + ((float)DateTime.Now.Minute * 0.01f)));
 
         //LoadGameData();
 
@@ -21,37 +23,31 @@ public class DataController : MonoBehaviour
 
     public void SubmitNewHighestLevel(int currentLevel)
     {
-        // If newScore is greater than playerProgress.highestScore, update playerProgress with the new value and call SavePlayerProgress()
-        if(playerProgress.CurrentLevel < currentLevel)
+        if (playerProgress.HighestLevel < currentLevel)
         {
-            playerProgress.CurrentLevel = currentLevel;
+            playerProgress.HighestLevel = currentLevel;
             SavePlayerProgress();
         }
     }
 
     public int GetCurrentLevel()
     {
-        return playerProgress.CurrentLevel;
+        return playerProgress.HighestLevel;
     }
 
-    private void LoadLevelData(){
+    private void LoadLevelData()
+    {
 
     }
 
     private void LoadGameData()
     {
-        // Path.Combine combines strings into a file path
-        // Application.StreamingAssets points to Assets/StreamingAssets in the Editor, and the StreamingAssets folder in a build
         string filePath = Path.Combine(Application.streamingAssetsPath, gameDataFileName);
 
-        if(File.Exists(filePath))
+        if (File.Exists(filePath))
         {
-            // Read the json from the file into a string
-            string dataAsJson = File.ReadAllText(filePath); 
-            // Pass the json to JsonUtility, and tell it to create a GameData object from it
+            string dataAsJson = File.ReadAllText(filePath);
             GameData loadedData = JsonUtility.FromJson<GameData>(dataAsJson);
-
-            // Retrieve the allRoundData property of loadedData
             currentGrid = loadedData.CurrentGrid;
         }
         else
@@ -60,25 +56,55 @@ public class DataController : MonoBehaviour
         }
     }
 
-    // This function could be extended easily to handle any additional data we wanted to store in our PlayerProgress object
     private void LoadPlayerProgress()
     {
-        // Create a new PlayerProgress object
-        playerProgress = new PlayerProgress();
-
-        // If PlayerPrefs contains a key called "highestScore", set the value of playerProgress.highestScore using the value associated with that key
-        if(PlayerPrefs.HasKey("currentLevel"))
+        if (PlayerPrefs.HasKey("currentLevel"))
         {
-            playerProgress.CurrentLevel = PlayerPrefs.GetInt("currentLevel");
-            Debug.Log(playerProgress.CurrentLevel);
+            playerProgress.HighestLevel = PlayerPrefs.GetInt("currentLevel");
         }
     }
 
-    // This function could be extended easily to handle any additional data we wanted to store in our PlayerProgress object
     private void SavePlayerProgress()
     {
-        // Save the value playerProgress.highestScore to PlayerPrefs, with a key of "highestScore"
-        PlayerPrefs.SetInt("currentLevel", playerProgress.CurrentLevel);
-        Debug.Log(playerProgress.CurrentLevel);
+        PlayerPrefs.SetInt("currentLevel", playerProgress.HighestLevel);
+    }
+
+    private void LoadNumberOfLifes()
+    {
+        if (PlayerPrefs.HasKey("numberOfLifes"))
+        {
+            playerProgress.NumberOfLifes = PlayerPrefs.GetInt("numberOfLifes");
+        }
+    }
+
+    private void SaveNumberOfLifes()
+    {
+        PlayerPrefs.SetInt("numberOfLifes", playerProgress.NumberOfLifes);
+    }
+
+    private void LoadLastPlayedTime()
+    {
+        if (PlayerPrefs.HasKey("lastPlayedTime"))
+        {
+            playerProgress.LastPlayedTime = PlayerPrefs.GetFloat("lastPlayedTime");
+        }
+    }
+
+    private void SaveLastPlayedTime()
+    {
+        PlayerPrefs.SetFloat("lastPlayedTime", ((float)DateTime.Now.Hour + ((float)DateTime.Now.Minute * 0.01f)));
+    }
+
+    private void LoadLastPlayedLevel()
+    {
+        if (PlayerPrefs.HasKey("lastPlayedLevel"))
+        {
+            playerProgress.LastPlayedLevel = PlayerPrefs.GetInt("lastPlayedLevel");
+        }
+    }
+
+    private void SaveLastPlayedLevel()
+    {
+        PlayerPrefs.SetInt("lastPlayedLevel", playerProgress.LastPlayedLevel);
     }
 }

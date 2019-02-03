@@ -32,7 +32,7 @@ public class Score : MonoBehaviour
 		SUI = GameObject.Find("UIScripts").GetComponent<ScoreUI>();
 	}
 
-	public void SetTargets(int blue, int yellow, int cyan, int green, int red, int magenta)
+	public void SetTargets(int blue, int yellow, int red, int cyan, int magenta, int green)
 	{
 		targetBlue = blue;
 		targetYellow = yellow;
