@@ -167,7 +167,79 @@ public class GridController : MonoBehaviour
 				}
 			}
 		}
-		Invoke("SetInputActive", 0.1f * highestNumberOfMoves);
+		if(checkIfMovesLeftInGrid()){
+			Invoke("SetInputActive", 0.1f * highestNumberOfMoves);
+		}else{
+			GameObject text = Resources.Load("PopUpNoOptionsLeft") as GameObject;
+			GameObject prefabText = Instantiate(text, text.transform.position, text.transform.rotation) as GameObject;
+			prefabText.transform.SetParent(GameObject.Find("MidPanel").transform, false);
+			Destroy(prefabText, 2.8f);
+			Invoke("ShuffleGrid", 3f);
+		}	
+	}
+
+	bool checkIfNormalHive(Hive currentHive){
+		return currentHive != null && currentHive.GetHiveType != HiveType.empty && currentHive.GetHiveType != HiveType.blockage;
+	}
+
+	bool checkIfMovesLeftInGrid(){
+		bool movesLeftInGrid = false;
+
+		for (int i = 0; i < gridManager.Columns; i++)
+		{
+			for (int j = 0; j < gridManager.Rows; j++)
+			{
+				if(gridManager.Grid[i,j] != null && checkIfNormalHive(gridManager.Grid[i,j]) && checkIfMovesAroundHive(gridManager.Grid[i,j])){
+					movesLeftInGrid = true;
+					break;
+				}
+			}
+			if(movesLeftInGrid){
+				break;
+			}
+		}
+		return movesLeftInGrid;
+	}
+
+	bool checkIfMovesAroundHive(Hive currentHive){
+		bool optionalMovesLeft = false;
+		HiveType type = currentHive.GetHiveType;
+
+		// even number search indexes below
+		if ((currentHive.X % 2) == 0)
+		{
+			// left/right
+			int[] xOffsets = { -1, 1, 0, 0, -1, 1 };
+			// Up/Down
+			int[] yOffsets = { 0, 0, -1, 1, 1, 1};
+
+			for (int i = 0; i < xOffsets.Length; i++)
+			{
+				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
+				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].GetHiveType == type))
+				{
+					optionalMovesLeft = true;
+					break;
+				}
+			}
+		}
+		else
+		{
+			// Left/right
+			int[] xOffsets = { -1, 1, 0, 0, -1, 1 };
+			// Up/Down
+			int[] yOffsets = { 0, 0, -1, 1, -1, -1 };
+			for (int i = 0; i < xOffsets.Length; i++)
+			{
+				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
+				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].GetHiveType == type))
+				{
+					optionalMovesLeft = true;
+					break;
+				}
+			}
+		}
+		return optionalMovesLeft;
 	}
 
 	void SetInputActive()
@@ -287,7 +359,13 @@ public class GridController : MonoBehaviour
 
 	public void ShuffleGrid()
 	{
+		Debug.Log("Shuffle grid");
 		Shuffle(gridManager.Grid);
+		if(checkIfMovesLeftInGrid()){
+			Invoke("SetInputActive", 1f);
+		}else{
+			ShuffleGrid();
+		}
 	}
 
 	void Shuffle(Hive[,] array)
@@ -298,7 +376,7 @@ public class GridController : MonoBehaviour
 			{
 				int newI = UnityEngine.Random.Range(0, i - 1);
 				int newJ = UnityEngine.Random.Range(0, j - 1);
-				if (gridManager.Grid[i, j].Value != 0 && gridManager.Grid[newI, newJ].Value != 0)
+				if (checkIfNormalHive(gridManager.Grid[i,j]) && checkIfNormalHive(gridManager.Grid[newI,newJ]))
 					Swap(i, j, newI, newJ, array);
 			}
 		}
