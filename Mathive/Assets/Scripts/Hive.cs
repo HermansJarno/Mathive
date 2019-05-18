@@ -85,6 +85,8 @@ public class Hive : Hexagon
 		if (stillSelecting) stillSelecting = false;
 
 		selected = false;
+		gameObject.AddComponent<Image>();
+		imageHive = gameObject.GetComponent<Image>();
 		imageHive.sprite = normalSprite;
 	}
 
@@ -94,6 +96,7 @@ public class Hive : Hexagon
 
 	public void OnValueChanged(HiveType hiveTypeValue)
 	{
+		Destroy(gameObject.GetComponent<Image>(), 0f);
 		if(gameObject.tag != "Blockage"){
 			hiveType = hiveTypeValue;
 			Value = (int)hiveTypeValue;
@@ -148,6 +151,13 @@ public class Hive : Hexagon
 			{
 				gameObject.GetComponent<Image>().enabled = true;
 			}
+		}
+	}
+
+	public void SetVisible(){
+		if (!gameObject.GetComponent<Image>().isActiveAndEnabled)
+		{
+			gameObject.GetComponent<Image>().enabled = true;
 		}
 	}
 

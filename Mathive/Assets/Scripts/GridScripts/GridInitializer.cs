@@ -21,8 +21,6 @@ public class GridInitializer : MonoBehaviour {
 		gridManager.Columns = levelData.NumberOfColumns;
 		gridManager.Rows = levelData.NumberOfRows;
 		gameManager.SetTargets(levelData.Targets, levelData.NumberOfMoves);
-		//gridManager.Columns = gridManager.GridLevels.Levels[gameManager.Level - 1][0];
-		//gridManager.Rows = gridManager.GridLevels.Levels[gameManager.Level - 1][1];
 
 		// Get current width and height of Screen
 		RectTransform rtGrid = gridManager.m_GridContainer.GetComponent<RectTransform>();
@@ -32,6 +30,9 @@ public class GridInitializer : MonoBehaviour {
 		// Calculate scale
 		gridManager.ScaleX = (widthScreen / gridManager.RefWidth) * gridManager.ExtraScale;
 		gridManager.ScaleY = (heightScreen / gridManager.RefHeight) * gridManager.ExtraScale;
+
+		Debug.Log(gridManager.ScaleX);
+		Debug.Log(gridManager.ScaleY);
 
 		if(gridManager.ScaleX > gridManager.ScaleY){
 			gridManager.ScaleX = gridManager.ScaleY;
@@ -92,16 +93,6 @@ public class GridInitializer : MonoBehaviour {
 						levelData.EmptyIndexes.RemoveAt(0);
 					}
 				}
-				/* 
-				for (int r = 0; r < gridManager.GridLevels.EmptyHivesLevels[gameManager.Level - 1][i].Length; r++)
-				{
-					//first the level, then the row, then check for index and validate them with J
-					if (gridManager.GridLevels.EmptyHivesLevels[gameManager.Level - 1][i][r] == (j + 1))
-					{
-						gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
-						gridManager.Grid[i, j].SetHive(0, i, j);
-					}
-				}*/
 			}
 		}
 
@@ -113,7 +104,6 @@ public class GridInitializer : MonoBehaviour {
 				if (gridManager.Grid[i, j] == null)
 				{
 					InstantiateBorder(i,j);
-
 					
 					int num = UnityEngine.Random.Range(1, 7);
 					gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
@@ -128,8 +118,6 @@ public class GridInitializer : MonoBehaviour {
 							gridManager.DistanceBetweenHives = (float)Math.Round((double)dist, 1);
 						}
 					}
-					
-
 				}
 			}
 		}
@@ -154,18 +142,6 @@ public class GridInitializer : MonoBehaviour {
 			//rows
 			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				/* 
-				if (j == 4)
-				{
-					if (gridManager.Grid[i, j] != null)
-					{
-						if (gridManager.Grid[i, j].GetHiveType != HiveType.empty)
-						{
-							gridManager.Grid[i, j].SetHive(-1, i, j);
-						}
-					}
-				}
-				*/
 				if(levelData.IceIndexes.Count > 0 && gridManager.Grid[i, j] != null){
 					if (gridManager.Grid[i, j].GetHiveType != HiveType.empty)
 					{

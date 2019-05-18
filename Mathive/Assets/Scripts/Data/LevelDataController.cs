@@ -12,6 +12,8 @@ public class LevelDataController : MonoBehaviour
     List<string> emptyIndexes = new List<string>();
     List<string> iceIndexes = new List<string>();
     List<int> targets = new List<int>();
+    List<HiveType> hives = new List<HiveType>();
+    List<int> scoreTargets = new List<int>();
 
     // Start is called before the first frame update
     void Awake()
@@ -50,7 +52,7 @@ public class LevelDataController : MonoBehaviour
          if(File.Exists(destination)) file = File.OpenWrite(destination);
          else file = File.Create(destination);
  
-         LevelData data = new LevelData(numberOfColumns, numberOfRows, emptyIndexes, iceIndexes, numberOfMoves, targets);
+         LevelData data = new LevelData(numberOfColumns, numberOfRows, emptyIndexes, iceIndexes, numberOfMoves, targets, hives, scoreTargets);
          BinaryFormatter bf = new BinaryFormatter();
          bf.Serialize(file, data);
          file.Close();
@@ -78,10 +80,13 @@ public class LevelDataController : MonoBehaviour
 
      public LevelData LoadLevelFromResources(int levelNumber){
         string level = "Levels/level" + levelNumber.ToString();
+        Debug.Log(level);
         TextAsset textAsset = Resources.Load(level) as TextAsset;
+        byte[] data = textAsset.bytes;
 
-        Stream stream = new MemoryStream(textAsset.bytes);
-        BinaryFormatter formatter = new BinaryFormatter();                
+        Stream stream = new MemoryStream(data);
+        Debug.Log(stream);
+        BinaryFormatter formatter = new BinaryFormatter();    
         LevelData myInstance = formatter.Deserialize(stream) as LevelData;
 
         return myInstance;

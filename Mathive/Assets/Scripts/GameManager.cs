@@ -19,17 +19,14 @@ public class GameManager : MonoBehaviour
 	Score scoreController;
 	private Text _movesLeftText;
 	private GameObject popUpNoMovesLeft, popUpLevelDone;
-	private GridController gridController;
 	private LevelController levelController;
 	private bool gameEnded = false;
 
 	private void Awake()
 	{
 		scoreController = GameObject.Find("Scripts").GetComponent<Score>();
-		gridController = GameObject.Find("Scripts").GetComponent<GridController>();
 		levelController = GameObject.Find("LevelData").GetComponent<LevelController>();
 		_level = levelController.level;
-		//SetTargets();
 		MovesLeft = _movesLeft;
 		popUpNoMovesLeft = GameObject.Find("PopUpOutOfMoves");
 		popUpLevelDone = GameObject.Find("PopUpLevelDone");
@@ -42,21 +39,8 @@ public class GameManager : MonoBehaviour
 		_movesLeft = movesLeft;
 	}
 
-	public void SetTargets()
-	{
-		//TargetNumber = targetNumber;
-		//TargetQuantity = quantityNumber;
-
-		//make this dynamic later point
-		scoreController.SetTargets(10, 10, 10, 10, 10, 10);
-	}
-
 	public void SetTargets(List<int> targets, int movesLeft)
 	{
-		//TargetNumber = targetNumber;
-		//TargetQuantity = quantityNumber;
-
-		//make this dynamic later point
 		scoreController.SetTargets(targets[0], targets[1], targets[2], targets[3], targets[4], targets[5]);
 		MovesLeft = movesLeft;
 	}

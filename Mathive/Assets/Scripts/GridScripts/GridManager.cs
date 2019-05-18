@@ -28,13 +28,9 @@ public class GridManager : MonoBehaviour
     [SerializeField] float extraScale = 0.1f;
     float delayLerp = 0.1f;
     private int m_colums, m_rows;
-    Score m_score;
-    private int emptyHiveLayer = 0;
 
     void Start()
     {
-        m_score = GameObject.Find("Scripts").GetComponent<Score>();
-        //Score = GameObject.Find("Score").GetComponent<Text>();
         hivePrefab = Resources.Load("Hive") as GameObject;
         borderPrefab = Resources.Load("HiveBorder") as GameObject;
         rowPrefab = Resources.Load("Row_") as GameObject;
