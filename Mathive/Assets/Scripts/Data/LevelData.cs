@@ -8,18 +8,15 @@ public class LevelData
 {
     int numerOfRows;
     int numberOfColumns;
-    List<string> emptyIndexes = new List<string>();
-    List<string> iceIndexes = new List<string>();
     int numberOfMoves;
     List<int> targets = new List<int>();
-    List<HiveType> hives = new List<HiveType>();
+    int[,] hives;
     List<int> scoreTargets = new List<int>();
 
-    public LevelData(int initNumberOfcolumns, int initNumberOfRows, List<string> initEmptyIndexes, List<string> initIceIndexes, int initNumberOfMoves, List<int> initTargets, List<HiveType> initHives, List<int> initScoreTargets){
-        numerOfRows = initNumberOfRows;
-        numberOfColumns = initNumberOfcolumns;
-        emptyIndexes = initEmptyIndexes;
-        iceIndexes = initIceIndexes;
+    public LevelData(int initNumberOfMoves, List<int> initTargets, int[,] initHives, List<int> initScoreTargets){
+        numerOfRows = initHives.GetLength(0);
+        numberOfColumns = initHives.GetLength(1);
+
         numberOfMoves = initNumberOfMoves;
         targets = initTargets;
         hives = initHives;
@@ -42,17 +39,7 @@ public class LevelData
         get{return numerOfRows;}
     }
 
-    public List<string> EmptyIndexes{
-        get{return emptyIndexes;}
-        set{emptyIndexes = value;}
-    }
-
-    public List<string> IceIndexes{
-        get{return iceIndexes;}
-        set{iceIndexes = value;}
-    }
-
-    public List<HiveType> Hives{
+    public int[,] Hives{
         get{return hives;}
     }
 

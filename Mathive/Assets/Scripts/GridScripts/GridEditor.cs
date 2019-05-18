@@ -12,15 +12,29 @@ public class GridEditor : MonoBehaviour
 
 	public GameSpecs _gameSpecs;
 
+	public int columns = 10;
+    public int rows = 10;
+
+	public int _targetBlue;
+	public int _targetYellow;
+	public int _targetRed;
+	public int _targetGreen;
+	public int _targetMagenta;
+	public int _targetCyan;
+	public int _numberOfMoves;
+
+	public int _minimumTargetScore;
+	public int _maximumTargetScore;
+
+	public int _level;
+
 	public GraphicRaycaster _raycaster;
     
-    [SerializeField] float yRowOffset = 50;
-    [SerializeField] float xHiveOffset = 85;
-    [SerializeField] float yHiveOffset = 100;
+    float yRowOffset = 50;
+    float xHiveOffset = 85;
+    float yHiveOffset = 100;
     private GameObject rowPrefab;
     public HiveType selectedHiveToEdit = HiveType.empty;
-    public int columns = 10;
-    public int rows = 10;
     protected Vector3[,] hivePositions;
     protected Hive[,] Grid;
     private float _scale = 1;
@@ -158,5 +172,27 @@ public class GridEditor : MonoBehaviour
 		selectedHiveToEdit = (HiveType)index;
 	}
 
+	public void SaveFile(){
+		int[,] hives = new int[columns, rows];
+		for (int i = 0; i < columns; i++)
+		{
+			for (int j = 0; j < rows; j++)
+			{
+				hives[i,j] = (int)Grid[i,j].GetHiveType;
+			}
+		}
+		List<int> targets = new List<int>();
+		targets.Add(_targetBlue);
+		targets.Add(_targetYellow);
+		targets.Add(_targetRed);
+		targets.Add(_targetCyan);
+		targets.Add(_targetMagenta);
+		targets.Add(_targetGreen);
+
+		List<int> scoreTargets = new List<int>();
+		scoreTargets.Add(_minimumTargetScore);
+		scoreTargets.Add(_maximumTargetScore);
+		new LevelDataController().SaveFile(_level, _numberOfMoves, hives, targets, scoreTargets);
+	}
 
 }

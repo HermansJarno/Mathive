@@ -85,8 +85,6 @@ public class Hive : Hexagon
 		if (stillSelecting) stillSelecting = false;
 
 		selected = false;
-		gameObject.AddComponent<Image>();
-		imageHive = gameObject.GetComponent<Image>();
 		imageHive.sprite = normalSprite;
 	}
 
@@ -96,7 +94,6 @@ public class Hive : Hexagon
 
 	public void OnValueChanged(HiveType hiveTypeValue)
 	{
-		Destroy(gameObject.GetComponent<Image>(), 0f);
 		if(gameObject.tag != "Blockage"){
 			hiveType = hiveTypeValue;
 			Value = (int)hiveTypeValue;

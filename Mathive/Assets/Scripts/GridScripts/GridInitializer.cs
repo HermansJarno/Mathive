@@ -8,15 +8,14 @@ public class GridInitializer : MonoBehaviour {
 	GridManager gridManager;
 	GameManager gameManager;
 	GridController gridController;
-	LevelDataController levelDataController;
+	LevelData levelData;
 
 	public void InitializeGrid()
 	{
 		gridManager = GameObject.Find("GridManager").GetComponent<GridManager>();
 		gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 		gridController = GameObject.Find("Scripts").GetComponent<GridController>();
-		levelDataController = GameObject.Find("LevelData").GetComponent<LevelDataController>();
-		LevelData levelData = levelDataController.LoadLevelFromResources(gameManager.Level);
+		levelData = new LevelDataController().LoadLevelFromResources(gameManager.Level);
 
 		gridManager.Columns = levelData.NumberOfColumns;
 		gridManager.Rows = levelData.NumberOfRows;
@@ -84,14 +83,9 @@ public class GridInitializer : MonoBehaviour {
 		{
 			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				if(levelData.EmptyIndexes.Count > 0){
-					int column = int.Parse(levelData.EmptyIndexes[0].Substring(0,1));
-					int row = int.Parse(levelData.EmptyIndexes[0].Substring(1,1));
-					if(i == (column -1) && j == (row -1)){
-						gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
-						gridManager.Grid[i, j].SetHive(0, i, j);
-						levelData.EmptyIndexes.RemoveAt(0);
-					}
+				if(levelData.Hives[i,j] == (int)HiveType.empty){
+					gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
+					gridManager.Grid[i, j].SetHive(0, i, j);
 				}
 			}
 		}
@@ -105,11 +99,9 @@ public class GridInitializer : MonoBehaviour {
 				{
 					InstantiateBorder(i,j);
 					
-					int num = UnityEngine.Random.Range(1, 7);
 					gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
-					gridManager.Grid[i, j].SetHive(num, i, j);
+					gridManager.Grid[i, j].SetHive(levelData.Hives[i,j], i, j);
 					
-
 					if (j - 1 > 0)
 					{
 						float dist = Vector3.Distance(gridManager.Grid[i, j].transform.position, gridManager.Grid[i, j - 1].transform.position);
@@ -122,6 +114,7 @@ public class GridInitializer : MonoBehaviour {
 			}
 		}
 
+/* 
 		for (int i = 0; i < gridManager.Columns; i++)
 		{
 			for (int j = 0; j < gridManager.Rows; j++)
@@ -133,7 +126,7 @@ public class GridInitializer : MonoBehaviour {
 			}
 		}
 
-		InstantiateGrid();
+		InstantiateGrid();*/
 
 		//Blockage
 		//Columns
@@ -142,17 +135,11 @@ public class GridInitializer : MonoBehaviour {
 			//rows
 			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				if(levelData.IceIndexes.Count > 0 && gridManager.Grid[i, j] != null){
-					if (gridManager.Grid[i, j].GetHiveType != HiveType.empty)
-					{
-						int column = int.Parse(levelData.IceIndexes[0].Substring(0,1));
-						int row = int.Parse(levelData.IceIndexes[0].Substring(1,1));
-						if(i == (column -1) && j == (row -1)){
-							gridManager.Grid[i, j].SetHive(-1, i, j);
-							levelData.IceIndexes.RemoveAt(0);
-						}
-					}
+				if (levelData.Hives[i,j] == (int)HiveType.blockage)
+				{
+					gridManager.Grid[i, j].SetHive(-1, i, j);	
 				}
+				
 			}
 		}
 

@@ -4,55 +4,17 @@ using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public class LevelDataController : MonoBehaviour
+public class LevelDataController 
 {
-    int numberOfColumns = 6;
-    int numberOfRows = 6;
-    int numberOfMoves = 30;
-    List<string> emptyIndexes = new List<string>();
-    List<string> iceIndexes = new List<string>();
-    List<int> targets = new List<int>();
-    List<HiveType> hives = new List<HiveType>();
-    List<int> scoreTargets = new List<int>();
-
-    // Start is called before the first frame update
-    void Awake()
-    {
-        /* 
-        emptyIndexes.Add("13");
-        emptyIndexes.Add("14");
-        emptyIndexes.Add("31");
-        emptyIndexes.Add("33");
-        emptyIndexes.Add("34");
-        emptyIndexes.Add("36");
-        emptyIndexes.Add("41");
-        emptyIndexes.Add("43");
-        emptyIndexes.Add("44");
-        emptyIndexes.Add("46");
-        emptyIndexes.Add("63");
-        emptyIndexes.Add("64");
-
-        for (int i = 0; i < 3; i++)
-        {
-            targets.Add(15);
-        }
-        for (int i = 0; i < 3; i++)
-        {
-            targets.Add(15);
-        }
-        SaveFile();
-        */
-    }
-
-    public void SaveFile()
+    public void SaveFile(int level, int numberOfMoves, int[,] hives, List<int> targets, List<int> scoreTargets)
      {
-         string destination = Application.persistentDataPath + "/level3.txt";
+         string destination = "D:/Dev/Mathive/Mathive/Assets/Resources/Levels/level" + level.ToString() +  ".bytes";
          FileStream file;
  
          if(File.Exists(destination)) file = File.OpenWrite(destination);
          else file = File.Create(destination);
  
-         LevelData data = new LevelData(numberOfColumns, numberOfRows, emptyIndexes, iceIndexes, numberOfMoves, targets, hives, scoreTargets);
+         LevelData data = new LevelData(numberOfMoves, targets, hives, scoreTargets);
          BinaryFormatter bf = new BinaryFormatter();
          bf.Serialize(file, data);
          file.Close();
@@ -86,7 +48,8 @@ public class LevelDataController : MonoBehaviour
 
         Stream stream = new MemoryStream(data);
         Debug.Log(stream);
-        BinaryFormatter formatter = new BinaryFormatter();    
+        BinaryFormatter formatter = new BinaryFormatter();
+        //BinaryReader reader = new BinaryReader(stream);
         LevelData myInstance = formatter.Deserialize(stream) as LevelData;
 
         return myInstance;
