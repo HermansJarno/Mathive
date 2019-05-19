@@ -75,7 +75,7 @@ public class Hive : Hexagon
 	{
 		if (stillSelecting)
 		{
-			imageHive.sprite = selectedSprite;
+			imageHive.overrideSprite = selectedSprite;
 			stillSelecting = false;
 		}
 	}
@@ -85,7 +85,7 @@ public class Hive : Hexagon
 		if (stillSelecting) stillSelecting = false;
 
 		selected = false;
-		imageHive.sprite = normalSprite;
+		imageHive.overrideSprite = normalSprite;
 	}
 
 	public void setIceHiveImage(){

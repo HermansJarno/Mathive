@@ -14,8 +14,8 @@ public class LevelData
     List<int> scoreTargets = new List<int>();
 
     public LevelData(int initNumberOfMoves, List<int> initTargets, int[,] initHives, List<int> initScoreTargets){
-        numerOfRows = initHives.GetLength(0);
-        numberOfColumns = initHives.GetLength(1);
+        numberOfColumns = initHives.GetLength(0);
+        numerOfRows = initHives.GetLength(1);
 
         numberOfMoves = initNumberOfMoves;
         targets = initTargets;
