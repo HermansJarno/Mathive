@@ -7,7 +7,7 @@ public class LevelController : MonoBehaviour {
   private int oldLevel = 1;
   private int _level = 1;
 
-  private int maxLevel = 3;
+  private int maxLevel = 4;
 
   DataController dataController;
   LevelLoader levelLoader = new LevelLoader();

@@ -100,6 +100,10 @@ public class Hive : Hexagon
 		}
 		switch (hiveTypeValue)
 		{
+			case HiveType.background:
+				SetAsBackground();
+				normalSprite = Resources.Load<Sprite>("Sprites/greyBackground");
+				break;
 			case HiveType.blockage:
 				gameObject.tag = "Blockage";
 				OnValueChanged((HiveType)UnityEngine.Random.Range(1, 7));
@@ -169,6 +173,10 @@ public class Hive : Hexagon
 		Destroy(gameObject);
 	}
 
+	public void SetAsBackground(){
+		Destroy(gameObject.GetComponent<PolygonCollider2D>());
+	}
+
 	void InstantiateBackground()
 	{
 		GameObject prefabAnimation = Instantiate(backgroundAnimation, transform.localPosition, backgroundAnimation.transform.rotation) as GameObject;
@@ -197,6 +205,7 @@ public class Hive : Hexagon
 
 public enum HiveType
 {
+	background = -2,
 	blockage = -1,
 	empty = 0,
 	red = 1,

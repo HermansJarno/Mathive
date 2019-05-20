@@ -7,6 +7,7 @@ public class GridManager : MonoBehaviour
     public GameObject m_GridContainerBackgrounds;
     public GameObject m_GridContainerBorder;
     public GameObject m_GridContainer;
+    public GameObject m_GridBackgroundMakeupContainer;
     [SerializeField] float m_refWidth = 600f;
     [SerializeField] float m_refHeight = 1280;
     [SerializeField] float xHiveOffset = 85;
@@ -20,6 +21,7 @@ public class GridManager : MonoBehaviour
     //private Text Score;
     protected GameObject hivePrefab;
     private GameObject borderPrefab;
+    private GameObject backgroundPrefab;
     private GameObject rowPrefab;
     private GameManager _GM;
     protected float distanceBetweenHives = Mathf.Infinity;
@@ -33,6 +35,7 @@ public class GridManager : MonoBehaviour
     {
         hivePrefab = Resources.Load("Hive") as GameObject;
         borderPrefab = Resources.Load("HiveBorder") as GameObject;
+        backgroundPrefab = Resources.Load("HiveBackgroundMakeup") as GameObject;
         rowPrefab = Resources.Load("Row_") as GameObject;
         _GM = GameObject.Find("GameManager").GetComponent<GameManager>();
         gridInitializer = GameObject.Find("GridManager").GetComponent<GridInitializer>();
@@ -152,6 +155,14 @@ public class GridManager : MonoBehaviour
         get
         {
             return borderPrefab;
+        }
+    }
+
+        public GameObject BackgroundPrefab
+    {
+        get
+        {
+            return backgroundPrefab;
         }
     }
 

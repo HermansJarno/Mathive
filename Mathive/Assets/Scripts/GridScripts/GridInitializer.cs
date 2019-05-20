@@ -57,12 +57,14 @@ public class GridInitializer : MonoBehaviour {
 				InstantiateRows(i + 1, gridManager.YRowOffset, gridManager.m_GridContainer);
 				InstantiateRows(i + 1, gridManager.YRowOffset, gridManager.m_GridContainerBackgrounds);
 				InstantiateRows(i + 1, gridManager.YRowOffset, gridManager.m_GridContainerBorder);
+				InstantiateRows(i + 1, gridManager.YRowOffset, gridManager.m_GridBackgroundMakeupContainer);
 			}
 			else
 			{
 				InstantiateRows(i + 1, 0, gridManager.m_GridContainer);
 				InstantiateRows(i + 1, 0, gridManager.m_GridContainerBackgrounds);
 				InstantiateRows(i + 1, 0, gridManager.m_GridContainerBorder);
+				InstantiateRows(i + 1, 0, gridManager.m_GridBackgroundMakeupContainer);
 			}
 		}
 
@@ -78,17 +80,7 @@ public class GridInitializer : MonoBehaviour {
 			yPosition = -(height / 2);
 		}
 
-		//Fill the empty Hives
-		for (int i = 0; i < gridManager.Columns; i++)
-		{
-			for (int j = 0; j < gridManager.Rows; j++)
-			{
-				if(levelData.Hives[i,j] == (int)HiveType.empty){
-					gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
-					gridManager.Grid[i, j].SetHive(0, i, j);
-				}
-			}
-		}
+
 
 		// Generate the hives
 		for (int i = 0; i < gridManager.Columns; i++)
@@ -97,17 +89,27 @@ public class GridInitializer : MonoBehaviour {
 			{
 				if (gridManager.Grid[i, j] == null)
 				{
-					InstantiateBorder(i,j);
-					
-					gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
-					gridManager.Grid[i, j].SetHive(levelData.Hives[i,j], i, j);
-					
-					if (j - 1 > 0)
-					{
-						float dist = Vector3.Distance(gridManager.Grid[i, j].transform.position, gridManager.Grid[i, j - 1].transform.position);
-						if (gridManager.DistanceBetweenHives > dist)
+					HiveType currentType = (HiveType)levelData.Hives[i,j];
+					if(currentType != HiveType.empty && currentType != HiveType.background){
+						InstantiateBorder(i,j);
+					}
+					if(currentType == HiveType.background){
+						InstantiateBackground(i,j);
+					}
+					if(currentType == HiveType.empty || currentType == HiveType.background){
+						gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
+						gridManager.Grid[i, j].SetHive(0, i, j);
+					}else{
+						gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j);
+						gridManager.Grid[i, j].SetHive(levelData.Hives[i,j], i, j);
+						
+						if (j - 1 > 0)
 						{
-							gridManager.DistanceBetweenHives = (float)Math.Round((double)dist, 1);
+							float dist = Vector3.Distance(gridManager.Grid[i, j].transform.position, gridManager.Grid[i, j - 1].transform.position);
+							if (gridManager.DistanceBetweenHives > dist)
+							{
+								gridManager.DistanceBetweenHives = (float)Math.Round((double)dist, 1);
+							}
 						}
 					}
 				}
@@ -158,6 +160,15 @@ public class GridInitializer : MonoBehaviour {
 		GameObject prefabHive = Instantiate(gridManager.BorderPrefab, gridManager.HivePositions[x, y], gridManager.HivePrefab.transform.rotation) as GameObject;
 		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(gridManager.ScaleX * scale, gridManager.ScaleX * scale, gridManager.ScaleX * scale);
 		prefabHive.transform.SetParent(gridManager.m_GridContainerBorder.transform.GetChild(x), false);
+		prefabHive.transform.SetAsFirstSibling();
+	}
+
+	void InstantiateBackground(int x, int y){
+		float scale = 1.3f;
+		GameObject prefabHive = Instantiate(gridManager.BackgroundPrefab, gridManager.HivePositions[x, y], gridManager.HivePrefab.transform.rotation) as GameObject;
+		prefabHive.GetComponent<RectTransform>().localScale = new Vector3(gridManager.ScaleX * scale, gridManager.ScaleX * scale, gridManager.ScaleX * scale);
+		prefabHive.transform.SetParent(gridManager.m_GridBackgroundMakeupContainer.transform.GetChild(x), false);
+		prefabHive.transform.SetAsFirstSibling();
 	}
 
 	public void InstantiateGrid()
