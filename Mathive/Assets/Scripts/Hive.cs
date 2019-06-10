@@ -199,6 +199,7 @@ public class Hive : Hexagon
 		prefabHive.transform.SetParent(gameObject.transform, false);
 		Hive tempHive = prefabHive.GetComponent<Hive>();
 		tempHive.setIceHiveImage();
+		gameObject.AddComponent<IceHive>();
 		return tempHive;
 	}
 }

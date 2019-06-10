@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class IceHivesController : MonoBehaviour {
 	/*
+	private GridManager gridManager;
+
+
+	// Use this for initialization
+	void Start()
+	{
+		gridManager = GameObject.Find("GridManager").GetComponent<GridManager>();
+	}
+
 	public void DestroyNearBlockages(Hive currentHive)
 	{
 		Debug.Log("delete blockages");

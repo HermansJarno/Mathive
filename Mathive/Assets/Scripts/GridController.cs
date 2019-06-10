@@ -65,7 +65,11 @@ public class GridController : MonoBehaviour
 				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
 				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
 				{
-					DestroyHive(gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
+					IceHive iceHive = gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].gameObject.GetComponent<IceHive>();
+					iceHive.LowerNumberOfHitsLeft();
+					if(iceHive.NumberOfTimesLeftToHit == 0){
+						DestroyHive(gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
+					}
 				}
 			}
 		}
@@ -80,7 +84,12 @@ public class GridController : MonoBehaviour
 				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
 				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
 				{
-					DestroyHive(gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
+					IceHive iceHive = gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].gameObject.GetComponent<IceHive>();
+					iceHive.LowerNumberOfHitsLeft();
+					if (iceHive.NumberOfTimesLeftToHit == 0)
+					{
+						DestroyHive(gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]]);
+					}
 				}
 			}
 		}
