@@ -188,7 +188,18 @@ public class GridController : MonoBehaviour
 	}
 
 	bool checkIfNormalHive(Hive currentHive){
-		return currentHive != null && currentHive.GetHiveType != HiveType.empty && currentHive.GetHiveType != HiveType.blockage;
+		bool normalHive = false;
+		if(currentHive != null){
+			if (currentHive.GetHiveType == HiveType.green || 
+			currentHive.GetHiveType == HiveType.blue ||
+			currentHive.GetHiveType == HiveType.cyan ||
+			currentHive.GetHiveType == HiveType.yellow ||
+			currentHive.GetHiveType == HiveType.magenta ||
+			currentHive.GetHiveType == HiveType.red){
+				normalHive = true;
+			}
+		} 
+		return normalHive;
 	}
 
 	bool checkIfMovesLeftInGrid(){
@@ -383,12 +394,22 @@ public class GridController : MonoBehaviour
 		{
 			for (int j = 0; j < gridManager.Rows; j++)
 			{
-				int newI = UnityEngine.Random.Range(0, i - 1);
-				int newJ = UnityEngine.Random.Range(0, j - 1);
-				if (checkIfNormalHive(gridManager.Grid[i,j]) && checkIfNormalHive(gridManager.Grid[newI,newJ]))
-					Swap(i, j, newI, newJ, array);
+				if (checkIfNormalHive(gridManager.Grid[i,j])) {
+					Hive newHive = SearchRandomNormalHive();
+					Swap(i, j, newHive.X, newHive.Y, array);
+				}
 			}
 		}
+	}
+
+	Hive SearchRandomNormalHive(){
+		int newI = 0;
+		int newJ = 0;
+		do{
+			newI = UnityEngine.Random.Range(0, gridManager.Columns -1);
+			newJ = UnityEngine.Random.Range(0, gridManager.Rows - 1);
+		}while(!checkIfNormalHive(gridManager.Grid[newI,newJ]));
+		return gridManager.Grid[newI,newJ];
 	}
 
 	void Swap(int currentI, int currentJ, int newI, int newJ, Hive[,] array)
