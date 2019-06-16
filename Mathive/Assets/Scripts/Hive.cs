@@ -55,11 +55,11 @@ public class Hive : Hexagon
 		selected = !selected;
 		if (selected)
 		{
-			imageHive.sprite = selectedSprite;
+			SetSelectedImage();
 		}
 		else
 		{
-			imageHive.sprite = normalSprite;
+			imageHive.overrideSprite = normalSprite;
 		}
 	}
 
@@ -68,7 +68,7 @@ public class Hive : Hexagon
 		selected = true;
 		stillSelecting = true;
 		Invoke("DelaySelectedHive", 0.1f);
-		InstantiateBackground();
+		InstantiateBackgroundAnimation();
 	}
 
 	void DelaySelectedHive()
@@ -177,7 +177,7 @@ public class Hive : Hexagon
 		Destroy(gameObject.GetComponent<PolygonCollider2D>());
 	}
 
-	void InstantiateBackground()
+	void InstantiateBackgroundAnimation()
 	{
 		GameObject prefabAnimation = Instantiate(backgroundAnimation, transform.localPosition, backgroundAnimation.transform.rotation) as GameObject;
 		prefabAnimation.GetComponent<RectTransform>().localScale = new Vector3(transform.localScale.x, transform.localScale.x, transform.localScale.x);

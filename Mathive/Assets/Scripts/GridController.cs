@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -62,7 +63,7 @@ public class GridController : MonoBehaviour
 
 			for (int i = 0; i < xOffsets.Length; i++)
 			{
-				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
+				if (checkIfIndexIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
 				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
 				{
 					IceHive iceHive = gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].gameObject.GetComponent<IceHive>();
@@ -81,7 +82,7 @@ public class GridController : MonoBehaviour
 			int[] yOffsets = { 0, 0, -1, 1, -1, -1 };
 			for (int i = 0; i < xOffsets.Length; i++)
 			{
-				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
+				if (checkIfIndexIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
 				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].tag == "Blockage"))
 				{
 					IceHive iceHive = gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].gameObject.GetComponent<IceHive>();
@@ -95,7 +96,7 @@ public class GridController : MonoBehaviour
 		}
 	}
 
-	private bool IndexAroundHiveIsInTheGrid(int xValue, int yValue){
+	private bool checkIfIndexIsInTheGrid(int xValue, int yValue){
 		bool isInTheGrid = false;
 		if ((gridManager.Grid.GetLength(0) > xValue) && (gridManager.Grid.GetLength(1) > yValue))
 		{
@@ -235,7 +236,7 @@ public class GridController : MonoBehaviour
 
 			for (int i = 0; i < xOffsets.Length; i++)
 			{
-				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
+				if (checkIfIndexIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
 				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].GetHiveType == type))
 				{
 					optionalMovesLeft = true;
@@ -251,7 +252,7 @@ public class GridController : MonoBehaviour
 			int[] yOffsets = { 0, 0, -1, 1, -1, -1 };
 			for (int i = 0; i < xOffsets.Length; i++)
 			{
-				if (IndexAroundHiveIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
+				if (checkIfIndexIsInTheGrid(currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i])
 				&& (gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]] != null && gridManager.Grid[currentHive.X + xOffsets[i], currentHive.Y + yOffsets[i]].GetHiveType == type))
 				{
 					optionalMovesLeft = true;
@@ -419,12 +420,177 @@ public class GridController : MonoBehaviour
 		array[newI, newJ].OnValueChanged(temp);
 	}
 
-	public List<Hive> DeselectAllHivesOfSameValue(List<Hive> hives)
+	public List<Hive> DeselectSpecialSelection(List<Hive> hives)
 	{
 		foreach (Hive hive in hives)
 		{
 			hive.SwitchState();
 		}
 		return null;
+	}
+
+	public List<Hive> SpecialSelection(List<Hive> hives){
+		List<Hive> tempHives = new List<Hive>();
+		switch(hives.Count){
+			case 3: tempHives = SpecialSelectionWith3(hives);
+			break;
+			case 4: tempHives = SpecialSelectionWith4(hives);
+			break;
+		}
+
+		foreach (Hive hive in tempHives)
+		{
+			hive.SwitchState();
+		}
+
+		//results need to be added to the full list of hives to delete
+		return tempHives;
+	}
+
+	private List<Hive> SpecialSelectionWith3(List<Hive> hives){
+		List<Hive> tempHives = new List<Hive>();
+
+		int mostOccuringIndex = getMostOccuringColumn(hives);
+		int leastOccuringIndex = getLeastOccuringColumn(hives);
+		int highestY = getHighestYIndex(hives);
+
+		if((mostOccuringIndex + 1) % 2 == 0){
+			Debug.Log("even hoogste");
+			if(leastOccuringIndex < mostOccuringIndex){
+				// LINKS
+				foreach (Hive hive in hives)
+				{
+					if(hive.X == leastOccuringIndex){
+						int x = hive.X;
+						int y = hive.Y;
+						if(checkIfValidIndex(x, y + 1)) tempHives.Add(gridManager.Grid[x, y + 1]);
+						if(checkIfValidIndex(x, y - 1)) tempHives.Add(gridManager.Grid[x, y - 1]);
+					}else if(hive.Y == highestY){
+						int x = hive.X;
+						int y = hive.Y;
+						if(checkIfValidIndex(x + 1, y - 1)) tempHives.Add(gridManager.Grid[x + 1, y - 1]);
+					}
+				}
+			}else{
+				// RECHTS
+				foreach (Hive hive in hives)
+				{
+					if(hive.X == leastOccuringIndex){
+						int x = hive.X;
+						int y = hive.Y;
+						if(checkIfValidIndex(x, y + 1)) tempHives.Add(gridManager.Grid[x, y + 1]);
+						if(checkIfValidIndex(x, y - 1)) tempHives.Add(gridManager.Grid[x, y - 1]);
+					}else if(hive.Y == highestY){
+						int x = hive.X;
+						int y = hive.Y;
+						if(checkIfValidIndex(x - 1, y - 1)) tempHives.Add(gridManager.Grid[x - 1, y - 1]);
+					}
+				}
+			}
+		}else{
+			Debug.Log("oneven hoogste");
+				if(leastOccuringIndex < mostOccuringIndex){
+				// LINKS
+				foreach (Hive hive in hives)
+				{
+					if(hive.X == leastOccuringIndex){
+						int x = hive.X;
+						int y = hive.Y;
+						if(checkIfValidIndex(x, y + 1)) tempHives.Add(gridManager.Grid[x, y + 1]);
+						if(checkIfValidIndex(x, y - 1)) tempHives.Add(gridManager.Grid[x, y - 1]);
+					}
+					else if(hive.Y == highestY){
+						int x = hive.X;
+						int y = hive.Y;
+						if(checkIfValidIndex(x + 1, y)) tempHives.Add(gridManager.Grid[x + 1, y]);
+					}
+				}
+			}else{
+				// RECHTS
+				foreach (Hive hive in hives)
+				{
+					if(hive.X == leastOccuringIndex){
+						int x = hive.X;
+						int y = hive.Y;
+						if(checkIfValidIndex(x, y + 1)) tempHives.Add(gridManager.Grid[x, y + 1]);
+						if(checkIfValidIndex(x, y - 1)) tempHives.Add(gridManager.Grid[x, y - 1]);
+					}else if(hive.Y == highestY){
+						int x = hive.X;
+						int y = hive.Y;
+						if(checkIfValidIndex(x - 1, y)) tempHives.Add(gridManager.Grid[x - 1, y]);
+					}
+				}
+			}
+		}
+
+		return tempHives;
+	}
+
+	private List<Hive> SpecialSelectionWith4(List<Hive> hives){
+		List<int> columnIndexes = new List<int>();
+		foreach (Hive hive in hives)
+		{
+		   if(!columnIndexes.Contains(hive.X)) columnIndexes.Add(hive.X);
+		}
+
+		List<Hive> tempHives = new List<Hive>();
+
+		int mostOccuringIndex = getMostOccuringColumn(hives);
+		int leastOccuringIndex = getLeastOccuringColumn(hives);
+		int highestY = getHighestYIndex(hives);
+
+		if(columnIndexes.Count == 3){
+			foreach (Hive hive in hives)
+			{
+				if(hive.X != mostOccuringIndex){
+					int x = hive.X;
+					int y = hive.Y;
+					if(checkIfValidIndex(x, y + 1)) tempHives.Add(gridManager.Grid[x, y + 1]);
+					if(checkIfValidIndex(x, y - 1)) tempHives.Add(gridManager.Grid[x, y - 1]);
+				} 
+			}
+		}else{
+			if((mostOccuringIndex + 1) % 2 == 0){
+				// even
+			}else{
+				// oneven
+			}
+		}
+
+		return tempHives;
+	}
+
+	private bool checkIfValidIndex(int x, int y){
+		return checkIfIndexIsInTheGrid(x, y) && checkIfNormalHive(gridManager.Grid[x, y]);
+	}
+
+	private int getMostOccuringColumn(List<Hive> hives){
+		List<int> columnIndexes = new List<int>();
+		foreach (Hive hive in hives)
+		{
+		   columnIndexes.Add(hive.X);
+		}
+
+		return columnIndexes.GroupBy(i=>i).OrderByDescending(grp=>grp.Count()).Select(grp=>grp.Key).First();
+	}
+
+	private int getLeastOccuringColumn(List<Hive> hives){
+		List<int> columnIndexes = new List<int>();
+		foreach (Hive hive in hives)
+		{
+		   columnIndexes.Add(hive.X);
+		}
+
+		return columnIndexes.GroupBy(i=>i).OrderByDescending(grp=>grp.Count()).Select(grp=>grp.Key).Last();
+	}
+
+	private int getHighestYIndex(List<Hive> hives){
+		List<int> columnIndexes = new List<int>();
+		foreach (Hive hive in hives)
+		{
+		   columnIndexes.Add(hive.Y);
+		}
+
+		return columnIndexes.GroupBy(i=>i).OrderByDescending(grp=>grp.Key).Select(grp=>grp.Key).First();
 	}
 }

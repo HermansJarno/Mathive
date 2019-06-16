@@ -76,7 +76,7 @@ public class TouchController : MonoBehaviour
 									{
 										if (resultHive == lastHive)
 										{
-											specialSelectionHives = gridController.DeselectAllHivesOfSameValue(specialSelectionHives);
+											specialSelectionHives = gridController.DeselectSpecialSelection(specialSelectionHives);
 											specialSelectionActivated = false;
 											lineHives.RemoveAt(lineHives.Count - 1);
 										}
@@ -127,6 +127,16 @@ public class TouchController : MonoBehaviour
 													lineHives.Add(resultObj.transform.position);
 													listHives.Add(resultHive);
 												}
+											}
+											else{
+												if (resultHive == listHives[0]) 
+												{ 
+													selectedHives.Push(resultObj); 
+													lineHives.Add(resultObj.transform.position); 
+													//specialSelectionHives = gridController.ReturnAllHivesOfSameValue(resultHive.GetHiveType, listHives); 
+													specialSelectionHives = gridController.SpecialSelection(listHives); 
+													specialSelectionActivated = true; 
+												} 
 											}
 										}
 									}
