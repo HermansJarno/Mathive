@@ -550,10 +550,40 @@ public class GridController : MonoBehaviour
 				} 
 			}
 		}else{
-			if((mostOccuringIndex + 1) % 2 == 0){
-				// even
+			if(getCountOfHighestHive(hives) == 1){
+				// even hoogste
+				List<Hive> hivesÈvenColumn = new List<Hive>();
+				List<Hive> hivesOddColumn = new List<Hive>();
+				foreach (Hive hive in hives)
+				{
+					if(hive.Y + 1 % 2 == 0){
+						hivesÈvenColumn.Add(hive);
+					}else{
+						hivesOddColumn.Add(hive);
+					}
+				}
+				int hightestEvenIndex = getHighestYIndex(hivesÈvenColumn);
+				int LowestEvenIndex = getLowestYIndex(hivesÈvenColumn);
+				int hightestOddIndex = getHighestYIndex(hivesOddColumn);
+				int LowestOddIndex = getLowestYIndex(hivesOddColumn);
+				int indexXEven = hivesÈvenColumn[0].X;
+				int indexXOdd = hivesOddColumn[0].X;
+				// if highest Y only occurs one time, then the highest index is in the even column
+				// then make the odd column the same height.
+				if(checkIfValidIndex(indexXOdd, hightestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd, hightestEvenIndex]);
+				// then make right hive same height as orginal highest hive from odd column
+				if (checkIfValidIndex(indexXOdd, hightestOddIndex)) tempHives.Add(gridManager.Grid[indexXOdd, hightestOddIndex]);
+				// then add a 3rd hive beneath the 2 orginal even hives
+				if (checkIfValidIndex(indexXEven, LowestOddIndex - 1)) tempHives.Add(gridManager.Grid[indexXEven, LowestOddIndex - 1]);
+				// then left hive is same height as the lowest orginal even hive
+				if (checkIfValidIndex(indexXEven - 1, LowestOddIndex)) tempHives.Add(gridManager.Grid[indexXEven - 1, LowestOddIndex]);
 			}else{
-				// oneven
+				// oneven hoogste
+				// if highest Y occurs 2 times, then the the highest index is visually! the odd column
+				// then make the even column the highest (extra hive).
+				// left hive should be a same height as the odd column highest
+				// the original odd column needs a 3rd hive beneath the 2 existing
+				// right hive should be same height as the lowest original hive from the odd column
 			}
 		}
 
@@ -592,5 +622,31 @@ public class GridController : MonoBehaviour
 		}
 
 		return columnIndexes.GroupBy(i=>i).OrderByDescending(grp=>grp.Key).Select(grp=>grp.Key).First();
+	}
+			
+	private int getLowestYIndex(List<Hive> hives)
+	{
+		List<int> columnIndexes = new List<int>();
+		foreach (Hive hive in hives)
+		{
+			columnIndexes.Add(hive.Y);
+		}
+		return columnIndexes.GroupBy(i => i).OrderByDescending(grp => grp.Key).Select(grp => grp.Key).Last();
+	}
+			   
+	private int getCountOfHighestHive(List<Hive> hives)
+	{
+		int highestIndex = getHighestYIndex(hives);
+		int count = 0;
+
+		List<int> columnIndexes = new List<int>();
+		foreach (Hive hive in hives)
+		{
+			if (hive.Y == highestIndex) count++;
+		}
+
+		Debug.Log(count);
+
+		return count;
 	}
 }
