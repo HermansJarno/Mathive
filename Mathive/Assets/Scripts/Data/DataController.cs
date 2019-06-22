@@ -14,7 +14,7 @@ public class DataController : MonoBehaviour
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
-        Debug.Log(((float)DateTime.Now.Hour + ((float)DateTime.Now.Minute * 0.01f)));
+        //Debug.Log(((float)DateTime.Now.Hour + ((float)DateTime.Now.Minute * 0.01f)));
 
         //LoadGameData();
 

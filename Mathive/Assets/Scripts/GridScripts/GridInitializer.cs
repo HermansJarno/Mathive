@@ -30,9 +30,6 @@ public class GridInitializer : MonoBehaviour {
 		gridManager.ScaleX = (widthScreen / gridManager.RefWidth) * gridManager.ExtraScale;
 		gridManager.ScaleY = (heightScreen / gridManager.RefHeight) * gridManager.ExtraScale;
 
-		Debug.Log(gridManager.ScaleX);
-		Debug.Log(gridManager.ScaleY);
-
 		if(gridManager.ScaleX > gridManager.ScaleY){
 			gridManager.ScaleX = gridManager.ScaleY;
 		}

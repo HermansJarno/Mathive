@@ -550,34 +550,79 @@ public class GridController : MonoBehaviour
 				} 
 			}
 		}else{
+			List<int> hivesEvenColumn = new List<int>();
+			List<int> hivesOddColumn = new List<int>();
+			int indexXEven = 0;
+			int indexXOdd = 0;
+			foreach (Hive hive in hives)
+			{
+				if((hive.X + 1) % 2 == 0){
+					hivesEvenColumn.Add(hive.Y);
+					indexXEven = hive.X;
+				}else{
+					hivesOddColumn.Add(hive.Y);						
+					indexXOdd = hive.X;
+				}
+			}
+			hivesEvenColumn.Sort();
+			hivesEvenColumn.Reverse();
+			hivesOddColumn.Sort();
+			hivesOddColumn.Reverse();
+
+			int hightestEvenIndex = hivesEvenColumn[0];
+			int lowestEvenIndex = hivesEvenColumn[1];
+			int hightestOddIndex = hivesOddColumn[0];
+			int lowestOddIndex = hivesOddColumn[1];
+
+				Debug.Log("index odd x: " + indexXOdd);
+				Debug.Log("index even x: " + indexXEven);
+				Debug.Log("index even highest y: " + hightestEvenIndex);
+				Debug.Log("index even lowest y: " + lowestEvenIndex);
+				Debug.Log("index odd highest y: " + hightestOddIndex);
+				Debug.Log("index odd lowest y: " + lowestOddIndex);
+
 			if(getCountOfHighestHive(hives) == 1){
 				// even hoogste
-				List<Hive> hivesÈvenColumn = new List<Hive>();
-				List<Hive> hivesOddColumn = new List<Hive>();
-				foreach (Hive hive in hives)
-				{
-					if(hive.Y + 1 % 2 == 0){
-						hivesÈvenColumn.Add(hive);
-					}else{
-						hivesOddColumn.Add(hive);
-					}
+				if(indexXEven > indexXOdd){
+					Debug.Log("left");
+					//left downwards
+					// if highest Y only occurs one time, then the highest index is in the even column
+					// then make the odd column the same height.
+					if(checkIfValidIndex(indexXOdd, hightestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd, hightestEvenIndex]);
+					// then make right hive same height as orginal highest hive from odd column
+					if (checkIfValidIndex(indexXEven + 1, hightestOddIndex)) tempHives.Add(gridManager.Grid[indexXEven + 1, hightestOddIndex]);
+					// then add a 3rd hive beneath the 2 orginal even hives
+					if (checkIfValidIndex(indexXEven, lowestEvenIndex - 1)) tempHives.Add(gridManager.Grid[indexXEven, lowestEvenIndex - 1]);
+					// then left hive is same height as the lowest orginal even hive
+					if (checkIfValidIndex(indexXOdd - 1, lowestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd - 1, lowestEvenIndex]);
+				}else{
+					Debug.Log("right");
+					//right downwards
+					// then make the odd column the same height.
+					if(checkIfValidIndex(indexXOdd, hightestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd, hightestEvenIndex]);
+					// then make right hive same height as orginal lowest hive from even column
+					if (checkIfValidIndex(indexXOdd + 1, lowestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd + 1, lowestEvenIndex]);
+					// then add a 3rd hive beneath the 2 orginal even hives
+					if (checkIfValidIndex(indexXEven, lowestEvenIndex - 1)) tempHives.Add(gridManager.Grid[indexXEven, lowestEvenIndex - 1]);
+					// then left hive is same height as the lowest orginal even hive
+					if (checkIfValidIndex(indexXEven - 1, hightestOddIndex)) tempHives.Add(gridManager.Grid[indexXEven - 1, hightestOddIndex]);
 				}
-				int hightestEvenIndex = getHighestYIndex(hivesÈvenColumn);
-				int LowestEvenIndex = getLowestYIndex(hivesÈvenColumn);
-				int hightestOddIndex = getHighestYIndex(hivesOddColumn);
-				int LowestOddIndex = getLowestYIndex(hivesOddColumn);
-				int indexXEven = hivesÈvenColumn[0].X;
-				int indexXOdd = hivesOddColumn[0].X;
-				// if highest Y only occurs one time, then the highest index is in the even column
-				// then make the odd column the same height.
-				if(checkIfValidIndex(indexXOdd, hightestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd, hightestEvenIndex]);
-				// then make right hive same height as orginal highest hive from odd column
-				if (checkIfValidIndex(indexXOdd, hightestOddIndex)) tempHives.Add(gridManager.Grid[indexXOdd, hightestOddIndex]);
-				// then add a 3rd hive beneath the 2 orginal even hives
-				if (checkIfValidIndex(indexXEven, LowestOddIndex - 1)) tempHives.Add(gridManager.Grid[indexXEven, LowestOddIndex - 1]);
-				// then left hive is same height as the lowest orginal even hive
-				if (checkIfValidIndex(indexXEven - 1, LowestOddIndex)) tempHives.Add(gridManager.Grid[indexXEven - 1, LowestOddIndex]);
 			}else{
+				if(indexXEven < indexXOdd){
+					Debug.Log("left");
+					//left downwards
+					if(checkIfValidIndex(indexXEven, hightestEvenIndex + 1)) tempHives.Add(gridManager.Grid[indexXEven, hightestEvenIndex + 1]);
+					if (checkIfValidIndex(indexXOdd + 1, hightestOddIndex)) tempHives.Add(gridManager.Grid[indexXOdd + 1, hightestOddIndex]);
+					if (checkIfValidIndex(indexXOdd, lowestOddIndex - 1)) tempHives.Add(gridManager.Grid[indexXOdd, lowestOddIndex - 1]);
+					if (checkIfValidIndex(indexXEven - 1, lowestEvenIndex)) tempHives.Add(gridManager.Grid[indexXEven - 1, lowestEvenIndex]);
+				}else{
+					Debug.Log("right");
+					//right downwards
+					if(checkIfValidIndex(indexXEven, hightestEvenIndex + 1)) tempHives.Add(gridManager.Grid[indexXEven, hightestEvenIndex + 1]);
+					if (checkIfValidIndex(indexXEven + 1, lowestOddIndex)) tempHives.Add(gridManager.Grid[indexXEven + 1, lowestOddIndex]);
+					if (checkIfValidIndex(indexXOdd, lowestOddIndex - 1)) tempHives.Add(gridManager.Grid[indexXOdd, lowestOddIndex - 1]);
+					if (checkIfValidIndex(indexXOdd - 1, hightestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd - 1, hightestEvenIndex]);
+				}
 				// oneven hoogste
 				// if highest Y occurs 2 times, then the the highest index is visually! the odd column
 				// then make the even column the highest (extra hive).
@@ -644,8 +689,6 @@ public class GridController : MonoBehaviour
 		{
 			if (hive.Y == highestIndex) count++;
 		}
-
-		Debug.Log(count);
 
 		return count;
 	}

@@ -17,7 +17,6 @@ public class LevelController : MonoBehaviour {
     dataController = gameObject.GetComponent<DataController>();
     _level = dataController.GetCurrentLevel();
     oldLevel = _level;
-    Debug.Log("Current level = " + _level);
     DontDestroyOnLoad(gameObject);
   }
 

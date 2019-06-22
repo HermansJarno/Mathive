@@ -42,14 +42,11 @@ public class LevelDataController
 
      public LevelData LoadLevelFromResources(int levelNumber){
         string level = "Levels/level" + levelNumber.ToString();
-        Debug.Log(level);
         TextAsset textAsset = Resources.Load(level) as TextAsset;
         byte[] data = textAsset.bytes;
 
         Stream stream = new MemoryStream(data);
-        Debug.Log(stream);
         BinaryFormatter formatter = new BinaryFormatter();
-        //BinaryReader reader = new BinaryReader(stream);
         LevelData myInstance = formatter.Deserialize(stream) as LevelData;
 
         return myInstance;
