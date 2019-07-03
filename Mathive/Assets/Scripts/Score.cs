@@ -102,17 +102,12 @@ public class Score : MonoBehaviour
 
 		int resultNumber = 0;
 		int macht = hives.Count;
-		int currentNumber = hives[0].Value;
-		resultNumber = currentNumber * 2;
-
-		hives[hives.Count - 1].OnValueChanged((HiveType)resultNumber);
+		resultNumber = 0;
 
 		int tempScore = int.Parse(scoreText.text);
-		foreach (Hive hive in hives)
-		{
-			resultNumber += hive.Value;
-		}
-		resultNumber *= macht;
+		resultNumber = (int) Mathf.Pow(2, macht);
+		new MessageController().processScore(resultNumber);
+
 		resultNumber += tempScore;
 		scoreText.text = resultNumber.ToString();
 	}

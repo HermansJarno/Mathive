@@ -77,8 +77,6 @@ public class GridInitializer : MonoBehaviour {
 			yPosition = -(height / 2);
 		}
 
-
-
 		// Generate the hives
 		for (int i = 0; i < gridManager.Columns; i++)
 		{
@@ -113,7 +111,6 @@ public class GridInitializer : MonoBehaviour {
 			}
 		}
 
-/* 
 		for (int i = 0; i < gridManager.Columns; i++)
 		{
 			for (int j = 0; j < gridManager.Rows; j++)
@@ -125,7 +122,7 @@ public class GridInitializer : MonoBehaviour {
 			}
 		}
 
-		InstantiateGrid();*/
+		InstantiateGrid();
 
 		//Blockage
 		//Columns
@@ -185,22 +182,13 @@ public class GridInitializer : MonoBehaviour {
 					if (blockageLevel < j || blockageLevel == -1)
 					{
 						// blockage is beneath index
-						bool hadToCreateNewIndex = false;
-						gridManager.Grid[i, j] = FindNextHive(i, j, out hadToCreateNewIndex, ref numberOfIndexesHigher);
+						gridManager.Grid[i, j] = gridManager.InstantiateHive(i, j, (HiveType) levelData.Hives[i,j]);
 						if (gridManager.Grid[i, j] != null)
 						{
 							gridManager.Grid[i, j].gameObject.AddComponent<MoveHive>();
 
-							if (hadToCreateNewIndex)
-							{
-								numberOfNewIndex++;
-								gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(gridManager.Grid[i, j].transform.localPosition.x, gridManager.Grid[i, j].transform.localPosition.y + (gridManager.YHiveOffset * (gridManager.Rows - j)), gridManager.Grid[i, j].transform.localPosition.z), gridManager.HivePositions[i, j], gridManager.LerpSpeed, 0f, (gridManager.DelayLerp * (numberOfMoves + numberOfNewIndex)), numberOfIndexesHigher);
-							}
-							else
-							{
-								numberOfMoves++;
-								gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(gridManager.Grid[i, j].transform.localPosition, gridManager.HivePositions[i, j], gridManager.LerpSpeed, (gridManager.DelayLerp * numberOfMoves), numberOfIndexesHigher);
-							}
+							numberOfNewIndex++;
+							gridManager.Grid[i, j].gameObject.GetComponent<MoveHive>().BeginLerp(new Vector3(gridManager.Grid[i, j].transform.localPosition.x, gridManager.Grid[i, j].transform.localPosition.y + (gridManager.YHiveOffset * (gridManager.Rows - j)), gridManager.Grid[i, j].transform.localPosition.z), gridManager.HivePositions[i, j], gridManager.LerpSpeed, 0f, (gridManager.DelayLerp * (numberOfMoves + numberOfNewIndex)), numberOfIndexesHigher);
 
 							gridManager.Grid[i, j].OnPositionChanged(i, j);
 						}

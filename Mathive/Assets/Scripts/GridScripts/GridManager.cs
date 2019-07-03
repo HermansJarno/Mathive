@@ -54,6 +54,17 @@ public class GridManager : MonoBehaviour
         return tempHive;
     }
 
+    public virtual Hive InstantiateHive(int x, int y, HiveType type)
+    {
+        GameObject prefabHive = Instantiate(hivePrefab, m_HivePositions[x, y], hivePrefab.transform.rotation) as GameObject;
+        prefabHive.GetComponent<RectTransform>().localScale = new Vector3(m_scaleX, m_scaleX, m_scaleX);
+        prefabHive.transform.SetParent(m_GridContainer.transform.GetChild(x), false);
+        Hive tempHive = prefabHive.GetComponent<Hive>();
+        tempHive.OnPositionChanged(x, y);
+        tempHive.OnValueChanged(type);
+        return tempHive;
+    }
+
     HiveType getRandomHiveType()
     {
         return (HiveType)UnityEngine.Random.Range(1, 7);
