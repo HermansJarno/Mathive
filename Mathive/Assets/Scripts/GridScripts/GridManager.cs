@@ -17,8 +17,6 @@ public class GridManager : MonoBehaviour
     [SerializeField] float lerpSpeed = 4;
     protected Vector3[,] m_HivePositions;
     protected Hive[,] m_Grid;
-    private GridLevels m_GridLevels = new GridLevels();
-    //private Text Score;
     protected GameObject hivePrefab;
     private GameObject borderPrefab;
     private GameObject backgroundPrefab;
@@ -206,14 +204,6 @@ public class GridManager : MonoBehaviour
         set
         {
             m_Grid = value;
-        }
-    }
-
-    public GridLevels GridLevels
-    {
-        get
-        {
-            return m_GridLevels;
         }
     }
 

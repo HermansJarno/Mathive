@@ -58,11 +58,10 @@ public class DataController : MonoBehaviour
 
     private void LoadPlayerProgress()
     {
-        if (PlayerPrefs.HasKey("currentLevel"))
-        {
-            playerProgress.HighestLevel = PlayerPrefs.GetInt("currentLevel");
-        }
+        playerProgress.HighestLevel = PlayerPrefs.GetInt("currentLevel", 1);
+        Debug.Log(playerProgress.HighestLevel);
     }
+
 
     private void SavePlayerProgress()
     {

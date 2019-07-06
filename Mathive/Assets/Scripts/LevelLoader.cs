@@ -5,9 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class LevelLoader : MonoBehaviour {
 
-  public void LoadLevel()
-  {
-    SceneManager.LoadScene("Level");
+  string levelToLoad = "mainScene";
+
+  public Animator animator;
+
+  public void FadeScene(){
+      animator.SetTrigger("FadeOut");
   }
 
   public void LoadLevel(string levelName)
@@ -16,7 +19,12 @@ public class LevelLoader : MonoBehaviour {
     {
       Destroy(GameObject.Find("LevelData"));
     }
-    SceneManager.LoadScene(levelName);
+    animator.SetTrigger("FadeOut");
+    levelToLoad = levelName;
+  }
+
+  public void LoadLevelAfterFade(){
+      SceneManager.LoadScene(levelToLoad);
   }
 
 }

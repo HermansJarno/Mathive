@@ -106,7 +106,10 @@ public class Score : MonoBehaviour
 
 		int tempScore = int.Parse(scoreText.text);
 		resultNumber = (int) Mathf.Pow(2, macht);
-		new MessageController().processScore(resultNumber);
+		if(GameObject.Find("GameManager").GetComponent<GameManager>().MovesLeft != 6){
+			// scores update first before movesLeft, so we are actually checking 5 moves left.
+			new MessageController().processScore(resultNumber);
+		}
 
 		resultNumber += tempScore;
 		scoreText.text = resultNumber.ToString();

@@ -108,6 +108,9 @@ public class GameManager : MonoBehaviour
 			{
 				_movesLeft = value;
 			}
+			if(_movesLeft == 5){
+				new MessageController().showRemainingMoves();
+			}
 			checkIfTargetIsDone(value);
 			_movesLeftText.text = _movesLeft.ToString();
 		}

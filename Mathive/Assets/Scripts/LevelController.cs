@@ -10,7 +10,6 @@ public class LevelController : MonoBehaviour {
   private int maxLevel = 6;
 
   DataController dataController;
-  LevelLoader levelLoader = new LevelLoader();
 
   private void Start()
   {
@@ -26,7 +25,7 @@ public class LevelController : MonoBehaviour {
     if(levelNr <= _level) {
       Debug.Log("loadLevel: " + levelNr);
       _level = levelNr;
-      levelLoader.LoadLevel();
+      GameObject.Find("LevelChanger").GetComponent<LevelLoader>().LoadLevel("Level");
     } 
   }
 

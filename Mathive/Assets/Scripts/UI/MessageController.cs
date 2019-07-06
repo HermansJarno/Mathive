@@ -4,30 +4,25 @@ using UnityEngine;
 
 public class MessageController
 {
-    string[] normalCompliments = new string[] {"GOOD THINKING", "COOL!", "THAT'S IT", "KEEP IT UP!"};
-    string[] midCompliments = new string[] {"EXCELLENT!", "NICE!", "GREAT!"};
-    string[] highCompliments = new string[] {"AWESOME!", "FANTASTIC!", "TREMENDOUS!"};
-    string[] higherCompliments = new string[] {"MARVELOUS!", "SUPERB!", "BEAUTIFUL!"};
-    string[] highestCompliments = new string[] {"MINDBLOWING!", "GODLIKE!", "INSANE!"};
+    string[] normalCompliments = new string[] {"GOOD THINKING", "NICE!", "THAT'S IT", "KEEP IT UP!", "GREAT!"};
+    string[] midCompliments = new string[] {"EXCELLENT!", "NEAT!", "AMAZING!", "BEAUTIFUL!", "AWESOME!"};
+    string[] highCompliments = new string[] {"FANTASTIC!", "TREMENDOUS!", "MINDBLOWING!", "GODLIKE!", "INSANE!", "MARVELOUS!", "SUPERB!"};
 
-    // Update is called once per frame
     public void processScore(int score)
     {
-        if(score >= 16 && score < 32){
+        if(score >= 32 && score < 64){
             new Message(normalCompliments[Random.Range(0, normalCompliments.Length)]);
         }
-        if(score >= 32 && score < 64){
+        if(score >= 64 && score < 128){
             new Message(midCompliments[Random.Range(0, midCompliments.Length)]);
         }
-        if(score >= 64 && score < 128){
+        if(score >= 128){
             new Message(highCompliments[Random.Range(0, highCompliments.Length)]);
         } 
-        if(score >= 128 && score < 256){
-            new Message(highCompliments[Random.Range(0, highCompliments.Length)]);
-        }
-        if(score >= 256){
-            new Message(highestCompliments[Random.Range(0, highestCompliments.Length)]);
-        }
+    }
+
+    public void showRemainingMoves() {
+        new Message("5 MOVES LEFT!");
     }
 
     public void showOutOfMoves(){
