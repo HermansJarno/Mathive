@@ -6,7 +6,7 @@ public class MessageController
 {
     string[] normalCompliments = new string[] {"GOOD THINKING", "NICE!", "THAT'S IT", "KEEP IT UP!", "GREAT!"};
     string[] midCompliments = new string[] {"EXCELLENT!", "NEAT!", "AMAZING!", "BEAUTIFUL!", "AWESOME!"};
-    string[] highCompliments = new string[] {"FANTASTIC!", "TREMENDOUS!", "MINDBLOWING!", "GODLIKE!", "INSANE!", "MARVELOUS!", "SUPERB!"};
+    string[] highCompliments = new string[] {"FANTASTIC!", "TREMENDOUS!", "GODLIKE!", "MARVELOUS!", "SUPERB!"};
 
     public void processScore(int score)
     {

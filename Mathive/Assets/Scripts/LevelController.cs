@@ -7,7 +7,7 @@ public class LevelController : MonoBehaviour {
   private int oldLevel = 1;
   private int _level = 1;
 
-  private int maxLevel = 6;
+  private int maxLevel = 10;
 
   DataController dataController;
 
@@ -19,13 +19,15 @@ public class LevelController : MonoBehaviour {
     DontDestroyOnLoad(gameObject);
   }
 
+//Used by level objects in editor.
   public void LoadLevel(GameObject go)
   { 
     int levelNr = int.Parse(go.name.Replace("Level ", ""));
-    if(levelNr <= _level) {
+    if(levelNr <= dataController.GetCurrentLevel()) {
       Debug.Log("loadLevel: " + levelNr);
       _level = levelNr;
-      GameObject.Find("LevelChanger").GetComponent<LevelLoader>().LoadLevel("Level");
+      LevelData levelData = new LevelDataController().LoadLevelFromResources(_level);
+      new LevelPopUp(_level, levelData.ScoreTargets[0], levelData.NumberOfMoves);
     } 
   }
 
@@ -43,5 +45,9 @@ public class LevelController : MonoBehaviour {
     if(level <= maxLevel){
       dataController.SubmitNewHighestLevel(level);
     }
+  }
+
+  public void LowerNumberOfLifes(){
+    dataController.LowerNumberOfLifes();
   }
 }

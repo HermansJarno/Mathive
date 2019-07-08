@@ -130,6 +130,8 @@ public class GameManager : MonoBehaviour
 				showPanel(popUpLevelDone);
 				levelController.UpdateHighestLevel(_level + 1);
 			}else{
+				levelController.LowerNumberOfLifes();
+				popUpNoMovesLeft.transform.Find("Heart").GetComponent<HeartUI>().UpdateNumberOfLifes();
 				showPanel(popUpNoMovesLeft);
 			}
 			gameEnded = true;

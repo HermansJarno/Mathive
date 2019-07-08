@@ -9,7 +9,7 @@ public class PlayerProgress : MonoBehaviour
     private int lastPlayedLevel = 1;
     private string playerName = "";
 
-    private float lastPlayedTime = 0f;
+    private string lastTimeLostLife = "";
     private List<List<int>> scores = new List<List<int>>();
 
     public int HighestLevel{
@@ -33,10 +33,10 @@ public class PlayerProgress : MonoBehaviour
         }
     }
 
-    public float LastPlayedTime{
-        get{return lastPlayedTime;}
+    public string LastTimeLostLife{
+        get{return lastTimeLostLife;}
         set{
-            lastPlayedTime = value;
+            lastTimeLostLife = value;
         }
     }
 
