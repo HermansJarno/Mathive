@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
 
 	private int _level = 1;
+	private int _starsEarned = 0;
 	[SerializeField] private int _score = 0;
 	[SerializeField] private int _goalScore = 0;
 	[SerializeField] private int _movesLeft = 30;
@@ -39,10 +40,11 @@ public class GameManager : MonoBehaviour
 		_movesLeft = movesLeft;
 	}
 
-	public void SetTargets(List<int> targets, int movesLeft)
+	public void SetTargets(List<int> targets, int movesLeft, List<int> scoreTargets)
 	{
 		scoreController.SetTargets(targets[0], targets[1], targets[2], targets[3], targets[4], targets[5]);
 		MovesLeft = movesLeft;
+		scoreController.setTargetScores(scoreTargets);
 	}
 
 	public bool TargetIsCompleted()
@@ -82,6 +84,12 @@ public class GameManager : MonoBehaviour
 	{
 		get { return _score; }
 		set { _score = value; }
+	}
+
+	public int StarsEarned
+	{
+		get { return _starsEarned; }
+		set { _starsEarned = value; }
 	}
 
 	public int GoalScore

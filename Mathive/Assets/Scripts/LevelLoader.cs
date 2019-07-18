@@ -23,6 +23,23 @@ public class LevelLoader : MonoBehaviour {
     levelToLoad = levelName;
   }
 
+  public void LoadRewardScene(){
+    levelToLoad = "rewardScene";
+    DontDestroyOnLoad(GameObject.Find("GameManager").gameObject);
+    animator.SetTrigger("FadeOut");
+  }
+
+  public void LoadNextLevel(){
+    if(GameObject.Find("LevelData").GetComponent<LevelController>().level < GameObject.Find("LevelData").GetComponent<LevelController>().MaxLevel){
+      levelToLoad = "Level";
+      Destroy(GameObject.Find("GameManager").gameObject);
+      GameObject.Find("LevelData").GetComponent<LevelController>().level++;
+      animator.SetTrigger("FadeOut");
+    }else{
+      LoadLevel("mainScene");
+    }
+  }
+
   public void LoadLevelAfterFade(){
       SceneManager.LoadScene(levelToLoad);
   }

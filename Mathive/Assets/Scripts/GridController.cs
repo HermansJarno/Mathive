@@ -488,7 +488,6 @@ public class GridController : MonoBehaviour
 				}
 			}
 		}else{
-			Debug.Log("oneven hoogste");
 				if(leastOccuringIndex < mostOccuringIndex){
 				// LINKS
 				foreach (Hive hive in hives)
@@ -574,17 +573,9 @@ public class GridController : MonoBehaviour
 			int hightestOddIndex = hivesOddColumn[0];
 			int lowestOddIndex = hivesOddColumn[1];
 
-				Debug.Log("index odd x: " + indexXOdd);
-				Debug.Log("index even x: " + indexXEven);
-				Debug.Log("index even highest y: " + hightestEvenIndex);
-				Debug.Log("index even lowest y: " + lowestEvenIndex);
-				Debug.Log("index odd highest y: " + hightestOddIndex);
-				Debug.Log("index odd lowest y: " + lowestOddIndex);
-
 			if(getCountOfHighestHive(hives) == 1){
 				// even hoogste
 				if(indexXEven > indexXOdd){
-					Debug.Log("left");
 					//left downwards
 					// if highest Y only occurs one time, then the highest index is in the even column
 					// then make the odd column the same height.
@@ -596,7 +587,6 @@ public class GridController : MonoBehaviour
 					// then left hive is same height as the lowest orginal even hive
 					if (checkIfValidIndex(indexXOdd - 1, lowestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd - 1, lowestEvenIndex]);
 				}else{
-					Debug.Log("right");
 					//right downwards
 					// then make the odd column the same height.
 					if(checkIfValidIndex(indexXOdd, hightestEvenIndex)) tempHives.Add(gridManager.Grid[indexXOdd, hightestEvenIndex]);

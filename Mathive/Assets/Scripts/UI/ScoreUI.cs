@@ -13,6 +13,8 @@ public class ScoreUI : MonoBehaviour {
 
   public Text blueScore, redScore, greenScore, yellowScore, magentaScore, cyanScore;
 
+  public Slider sliderScore;
+
   public GameObject[] TopScores;
   public GameObject[] BottomScores;
   public GameObject m_GridContainer;
@@ -25,6 +27,18 @@ public class ScoreUI : MonoBehaviour {
   void Start () {
     SetupUI();
 	}
+
+  public void UpdateGlobalScore(float previousMaxScore, float maxScore, float currentScore){
+    float ms = maxScore - previousMaxScore;
+    float currentProgress = ms - (maxScore - currentScore);
+    sliderScore.value = (currentProgress / ms);
+  }
+
+  public void UpdateNumberOfStarsEarned(int numberOfStars){
+    if(numberOfStars >= 1) GameObject.Find("Star1").GetComponent<Transform>().GetChild(0).gameObject.SetActive(true);
+    if(numberOfStars >= 2) GameObject.Find("Star2").GetComponent<Transform>().GetChild(0).gameObject.SetActive(true);
+    if(numberOfStars == 3) GameObject.Find("Star3").GetComponent<Transform>().GetChild(0).gameObject.SetActive(true);
+  }
 
   public void UpdateScores(string blue, string red, string green, string yellow, string magenta, string cyan)
   {
@@ -59,12 +73,13 @@ public class ScoreUI : MonoBehaviour {
       //m_yOffset *= m_scaleY;
       m_xOffset *= m_scaleX;
 
+/* 
       TopScores[0].transform.localPosition = new Vector3(-(m_xOffset), TopScores[0].transform.localPosition.y, 0);
       TopScores[1].transform.localPosition = new Vector3(0, TopScores[1].transform.localPosition.y, 0);
       TopScores[2].transform.localPosition = new Vector3(m_xOffset, TopScores[2].transform.localPosition.y, 0);
       BottomScores[0].transform.localPosition = new Vector3(-(m_xOffset), BottomScores[0].transform.localPosition.y, 0);
       BottomScores[1].transform.localPosition = new Vector3(0, BottomScores[1].transform.localPosition.y, 0);
-      BottomScores[2].transform.localPosition = new Vector3(m_xOffset, BottomScores[2].transform.localPosition.y, 0);
+      BottomScores[2].transform.localPosition = new Vector3(m_xOffset, BottomScores[2].transform.localPosition.y, 0);*/
       foreach (GameObject scoreObj in TopScores)
       {
         scoreObj.GetComponent<RectTransform>().localScale = new Vector3(m_scaleX, m_scaleX, m_scaleX);

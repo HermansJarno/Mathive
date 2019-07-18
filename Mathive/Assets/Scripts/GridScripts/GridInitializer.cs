@@ -19,7 +19,7 @@ public class GridInitializer : MonoBehaviour {
 
 		gridManager.Columns = levelData.NumberOfColumns;
 		gridManager.Rows = levelData.NumberOfRows;
-		gameManager.SetTargets(levelData.Targets, levelData.NumberOfMoves);
+		gameManager.SetTargets(levelData.Targets, levelData.NumberOfMoves, levelData.ScoreTargets);
 
 		// Get current width and height of Screen
 		RectTransform rtGrid = gridManager.m_GridContainer.GetComponent<RectTransform>();

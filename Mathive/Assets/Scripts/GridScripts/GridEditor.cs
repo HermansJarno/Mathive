@@ -24,6 +24,7 @@ public class GridEditor : MonoBehaviour
 	public int _numberOfMoves;
 
 	public int _minimumTargetScore;
+	public int _mediumTargetScore;
 	public int _maximumTargetScore;
 
 	public int _level;
@@ -191,6 +192,7 @@ public class GridEditor : MonoBehaviour
 
 		List<int> scoreTargets = new List<int>();
 		scoreTargets.Add(_minimumTargetScore);
+		scoreTargets.Add(_mediumTargetScore);
 		scoreTargets.Add(_maximumTargetScore);
 		new LevelDataController().SaveFile(_level, _numberOfMoves, hives, targets, scoreTargets);
 	}

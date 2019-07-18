@@ -7,7 +7,7 @@ public class LevelController : MonoBehaviour {
   private int oldLevel = 1;
   private int _level = 1;
 
-  private int maxLevel = 10;
+  private int maxLevel = 3;
 
   DataController dataController;
 
@@ -31,9 +31,15 @@ public class LevelController : MonoBehaviour {
     } 
   }
 
+  public int MaxLevel
+  {
+    get { return maxLevel; }
+  }
+
   public int level
   {
     get { return _level; }
+    set {_level = value; }
   }
 
   public int OldLevel{
